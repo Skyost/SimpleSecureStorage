@@ -30,8 +30,7 @@ flutter:
         pluginClass: SimpleSecureStoragePlugin
         sharedDarwinSource: true
       linux:
-        pluginClass: SimpleSecureStorageLinux
-        fileName: src/implementations/linux.dart
+        pluginClass: SimpleSecureStoragePlugin
       macos:
         pluginClass: SimpleSecureStoragePlugin
         sharedDarwinSource: true
