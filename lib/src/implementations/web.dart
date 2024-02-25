@@ -9,7 +9,7 @@ import 'package:simple_secure_storage/src/platform_interface.dart';
 
 /// A web implementation of the SimpleSecureStoragePlatform of the SimpleSecureStorage plugin.
 class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
-  /// Constructs a SimpleSecureStorageWeb
+  /// Constructs a SimpleSecureStorageWeb.
   SimpleSecureStorageWeb();
 
   /// Registers this implementation.

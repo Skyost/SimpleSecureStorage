@@ -1,13 +1,14 @@
 name: simple_secure_storage
 description: "Simple and secure storage for Flutter."
 version: 0.0.1
-homepage:
+homepage: https://github.com/Skyost/SimpleSecureStorage
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
+  dbus: ^0.7.10
   flutter:
     sdk: flutter
   flutter_web_plugins:
@@ -29,7 +30,8 @@ flutter:
         pluginClass: SimpleSecureStoragePlugin
         sharedDarwinSource: true
       linux:
-        pluginClass: SimpleSecureStoragePlugin
+        pluginClass: SimpleSecureStorageLinux
+        fileName: src/implementations/linux.dart
       macos:
         pluginClass: SimpleSecureStoragePlugin
         sharedDarwinSource: true
@@ -37,4 +39,4 @@ flutter:
         pluginClass: SimpleSecureStoragePluginCApi
       web:
         pluginClass: SimpleSecureStorageWeb
-        fileName: simple_secure_storage_web.dart
+        fileName: src/implementations/web.dart
