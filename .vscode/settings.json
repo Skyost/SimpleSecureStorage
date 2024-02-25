@@ -1,0 +1,6 @@
+{
+    "cmake.sourceDirectory": "/home/skyost/Documents/SimpleSecureStorage/example/linux",
+    "files.associations": {
+        "memory": "cpp"
+    }
+}

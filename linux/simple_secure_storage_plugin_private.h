@@ -6,5 +6,10 @@
 // https://github.com/flutter/flutter/issues/88724 for current limitations
 // in the unit-testable API.
 
-// Handles the getPlatformVersion method call.
-FlMethodResponse *get_platform_version();
+static SecretStorage keyring;
+
+FlValue* has(const gchar* key);
+FlValue *read(const gchar *key);
+void write(const gchar *key, const gchar *value);
+void del(const gchar *key);
+void clear();

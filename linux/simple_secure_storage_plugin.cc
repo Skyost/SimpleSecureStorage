@@ -1,10 +1,14 @@
 #include "include/simple_secure_storage/simple_secure_storage_plugin.h"
+#include "include/secret.hpp"
 
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
+#include <libsecret/secret.h>
 #include <sys/utsname.h>
 
 #include <cstring>
+
+#include <nlohmann/json.hpp>
 
 #include "simple_secure_storage_plugin_private.h"
 
@@ -25,9 +29,33 @@ static void simple_secure_storage_plugin_handle_method_call(
   g_autoptr(FlMethodResponse) response = nullptr;
 
   const gchar* method = fl_method_call_get_name(method_call);
+  FlValue *arguments = fl_method_call_get_args(method_call);
 
-  if (strcmp(method, "getPlatformVersion") == 0) {
-    response = get_platform_version();
+  FlValue *key = fl_value_lookup_string(arguments, "key");
+  const gchar *keyString = key == nullptr ? nullptr : fl_value_get_string(key);
+
+  if (strcmp(method, "initialize") == 0) {
+    FlValue *name = fl_value_lookup_string(arguments, "namespace");
+    const gchar *nameString = name == nullptr ? "fr.skyost.simple_secure_storage" : fl_value_get_string(name);
+    keyring = SecretStorage(nameString);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
+  } else if (strcmp(method, "has") == 0) {
+    g_autoptr(FlValue) result = has(keyString);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+  } else if (strcmp(method, "read") == 0) {
+    g_autoptr(FlValue) result = read(keyString);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+  } else if (strcmp(method, "write") == 0) {
+    FlValue *value = fl_value_lookup_string(arguments, "value");
+    const gchar *valueString = value == nullptr ? nullptr : fl_value_get_string(value);
+    write(keyString, valueString);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
+  } else if (strcmp(method, "delete") == 0) {
+    del(keyString);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
+  } else if (strcmp(method, "clear") == 0) {
+    clear();
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
@@ -35,12 +63,30 @@ static void simple_secure_storage_plugin_handle_method_call(
   fl_method_call_respond(method_call, response, nullptr);
 }
 
-FlMethodResponse* get_platform_version() {
-  struct utsname uname_data = {};
-  uname(&uname_data);
-  g_autofree gchar *version = g_strdup_printf("Linux %s", uname_data.version);
-  g_autoptr(FlValue) result = fl_value_new_string(version);
-  return FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+FlValue* has(const gchar* key) {
+  nlohmann::json data = keyring.readFromKeyring();
+  return fl_value_new_bool(data.contains(key));
+}
+
+FlValue *read(const gchar *key)
+{
+  auto value = keyring.getItem(key);
+  return value.has_value() ? fl_value_new_string(value.value().c_str()) : nullptr;
+}
+
+void write(const gchar *key, const gchar *value)
+{
+  keyring.addItem(key, value);
+}
+
+void del(const gchar *key)
+{
+  keyring.deleteItem(key);
+}
+
+void clear()
+{ 
+  keyring.deleteKeyring();
 }
 
 static void simple_secure_storage_plugin_dispose(GObject* object) {
@@ -66,7 +112,7 @@ void simple_secure_storage_plugin_register_with_registrar(FlPluginRegistrar* reg
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   g_autoptr(FlMethodChannel) channel =
       fl_method_channel_new(fl_plugin_registrar_get_messenger(registrar),
-                            "simple_secure_storage",
+                            "fr.skyost.simple_secure_storage",
                             FL_METHOD_CODEC(codec));
   fl_method_channel_set_method_call_handler(channel, method_call_cb,
                                             g_object_ref(plugin),
