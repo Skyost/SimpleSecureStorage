@@ -73,7 +73,11 @@ static void simple_secure_storage_plugin_handle_method_call(
   } else if (strcmp(method, "list") == 0) {
     auto callResult = ensureInitialized();
     if (std::get<0>(callResult)) {
-      response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_map(secureFileContent)));
+      auto map = fl_value_new_map();
+      for (auto& element : secureFileContent.items()) {
+        fl_value_set_string_take(map, std::string(element.key()).c_str(), fl_value_new_string(std::string(element.value()).c_str()));
+      }
+      response = FL_METHOD_RESPONSE(fl_method_success_response_new(map));
     } else {
       response = FL_METHOD_RESPONSE(fl_method_error_response_new("not_initialized", std::get<1>(callResult).c_str(), nullptr));
     }
