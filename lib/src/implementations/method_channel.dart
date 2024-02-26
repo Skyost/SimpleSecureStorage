@@ -26,6 +26,9 @@ class MethodChannelSimpleSecureStorage extends SimpleSecureStoragePlatform {
   Future<String?> read(String key) => _methodChannel.invokeMethod<String>('read', _createArguments(key));
 
   @override
+  Future<Map<String, String>> list() async => (await _methodChannel.invokeMethod<Map>('list'))?.cast<String, String>() ?? {};
+
+  @override
   Future<void> write(String key, String value) => _methodChannel.invokeMethod('write', _createArguments(key, value));
 
   @override

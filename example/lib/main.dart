@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -38,16 +39,12 @@ class _SimpleSecureStorageExampleAppState extends State<SimpleSecureStorageExamp
   /// Platform messages are asynchronous, so we initialize in an async method.
   Future<void> refreshIncrementCount() async {
     bool has = await SimpleSecureStorage.has('count');
-    if (!has) {
-      if (mounted) {
-        setState(() {
-          this.has = has;
-          this.count = 0;
-        });
-      }
-      return;
+    int count = has ? int.parse((await SimpleSecureStorage.read('count'))!) : 0;
+    if (kDebugMode) {
+      print('---------------------------------');
+      print(await SimpleSecureStorage.list());
+      print('---------------------------------');
     }
-    int count = int.parse((await SimpleSecureStorage.read('count'))!);
     if (mounted) {
       setState(() {
         this.count = count;
@@ -78,6 +75,7 @@ class _SimpleSecureStorageExampleAppState extends State<SimpleSecureStorageExamp
                     onPressed: () async {
                       int count = this.count + 1;
                       await SimpleSecureStorage.write('count', count.toString());
+                      await SimpleSecureStorage.write('another_value', 'Hello world !');
                       await refreshIncrementCount();
                     },
                     child: const Text('Increment and save'),

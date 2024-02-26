@@ -30,6 +30,12 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   }
 
   @override
+  Future<Map<String, String>> list() {
+    // TODO: implement clear
+    throw UnimplementedError();
+  }
+
+  @override
   Future<void> write(String key, String value) {
     // TODO: implement write
     throw UnimplementedError();

@@ -46,6 +46,8 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
             result(has(arguments["key"] as! String))
         case "read":
             result(read(arguments["key"] as! String))
+        case "list":
+            result(values)
         case "write":
             let status = write(arguments["key"] as! String, arguments["value"] as! String)
             if status == noErr {

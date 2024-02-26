@@ -83,6 +83,12 @@ class SimpleSecureStoragePlugin: FlutterPlugin, MethodCallHandler {
         }
         result.success(preferences!!.getString(call.argument("key"), null))
       }
+      "list" -> {
+        if (!ensureInitialized(result)) {
+          return
+        }
+        result.success(preferences!!.all)
+      }
       "write" -> {
         if (!ensureInitialized(result)) {
           return

@@ -41,6 +41,9 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
   /// Returns the value of the given [key].
   Future<String?> read(String key);
 
+  /// Lists all key/value pairs.
+  Future<Map<String, String>> list();
+
   /// Writes the [value] so that it corresponds to the [key].
   Future<void> write(String key, String value);
 

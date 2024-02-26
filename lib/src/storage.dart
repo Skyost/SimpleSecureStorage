@@ -18,6 +18,9 @@ class SimpleSecureStorage {
   /// Returns the value of the given [key].
   static Future<String?> read(String key) => SimpleSecureStoragePlatform.instance.read(key);
 
+  /// Lists all key/value pairs.
+  static Future<Map<String, String>> list() => SimpleSecureStoragePlatform.instance.list();
+
   /// Writes the [value] so that it corresponds to the [key].
   static Future<void> write(String key, String value) => SimpleSecureStoragePlatform.instance.write(key, value);
 

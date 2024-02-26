@@ -70,6 +70,13 @@ static void simple_secure_storage_plugin_handle_method_call(
         response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
       }
     }
+  } else if (strcmp(method, "list") == 0) {
+    auto callResult = ensureInitialized();
+    if (std::get<0>(callResult)) {
+      response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_map(secureFileContent)));
+    } else {
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("not_initialized", std::get<1>(callResult).c_str(), nullptr));
+    }
   } else if (strcmp(method, "write") == 0) {
     auto callResult = ensureInitialized();
     if (std::get<0>(callResult)) {

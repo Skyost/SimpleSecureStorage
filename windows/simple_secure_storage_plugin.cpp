@@ -80,6 +80,15 @@ namespace simple_secure_storage {
       auto key =
         std::get<std::string>(arguments->find(EncodableValue("key"))->second);
       result->Success(flutter::EncodableValue(has(key)));
+    } else if (method.compare("list") == 0) {
+      if (!ensureInitialized(result)) {
+        return;
+      }
+      auto map = EncodableMap{};
+      for (auto& [key, value] : secureFileContent.items()) {
+        map.insert({EncodableValue(std::string(key)), EncodableValue(std::string(value))});
+      }
+      result->Success(EncodableValue(map));
     } else if (method.compare("read") == 0) {
       if (!ensureInitialized(result)) {
         return;
@@ -145,11 +154,12 @@ namespace simple_secure_storage {
     if (std::get<0>(result) != 0) {
       return result;
     }
-    json json = json::parse(std::get<1>(result));
-    if (json.is_discarded()) {
-      return std::tuple<int, std::string>(1, "Parse failed.");
+    try {
+      secureFileContent = json::parse(std::get<1>(result));
+    } catch (json::parse_error& error) {
+      (void)error;
+      return std::tuple<int, std::string>(1, "JSON parse error.");
     }
-    secureFileContent = json;
     return std::tuple<int, std::string>(0, "Success.");
   }
 
