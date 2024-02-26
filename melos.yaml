@@ -1,0 +1,27 @@
+name: simple_secure_storage
+repository: https://github.com/Skyost/SimpleSecureStorage
+
+packages:
+  - packages/*
+  - packages/simple_secure_storage/example
+
+command:
+  version:
+    linkToCommits: true
+    branch: master
+    workspaceChangelog: false
+    hooks:
+      pre: |
+        dart format "packages/bonsoir/lib" 
+        && "cd packages/bonsoir_platform_interface" 
+        && dart run "bonsoir_platform_interface:generate" 
+        && cd "../../" 
+        && melos analyze
+    message: |
+      chore(release): Publish packages.
+
+      {new_package_versions}
+
+scripts:
+  analyze:
+    exec: dart analyze .

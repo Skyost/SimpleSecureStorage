@@ -1,0 +1,29 @@
+name: simple_secure_storage_web
+description: Web implementation of the SimpleSecureStorage plugin.
+homepage: https://github.com/Skyost/SimpleSecureStorage
+repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_web
+issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.3.0'
+
+flutter:
+  plugin:
+    platforms:
+      implements: simple_secure_storage
+      web:
+        pluginClass: SimpleSecureStorageWeb
+        fileName: simple_secure_storage_web.dart
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  simple_secure_storage_platform_interface: ^0.1.0
+
+dependency_overrides:
+  simple_secure_storage_platform_interface:
+    path: ../simple_secure_storage_platform_interface/

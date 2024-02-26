@@ -1,0 +1,26 @@
+name: simple_secure_storage_windows
+description: Windows implementation of the SimpleSecureStorage plugin.
+homepage: https://github.com/Skyost/SimpleSecureStorage
+repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_windows
+issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.3.0'
+
+flutter:
+  plugin:
+    platforms:
+      implements: simple_secure_storage
+      windows:
+        pluginClass: SimpleSecureStorageWindowsPluginCApi
+
+dependencies:
+  flutter:
+    sdk: flutter
+  simple_secure_storage_platform_interface: ^0.1.0
+
+dependency_overrides:
+  simple_secure_storage_platform_interface:
+    path: ../simple_secure_storage_platform_interface/
