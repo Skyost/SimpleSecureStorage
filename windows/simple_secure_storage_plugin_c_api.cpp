@@ -5,8 +5,10 @@
 #include "simple_secure_storage_plugin.h"
 
 void SimpleSecureStoragePluginCApiRegisterWithRegistrar(
-    FlutterDesktopPluginRegistrarRef registrar) {
+  FlutterDesktopPluginRegistrarRef registrar
+) {
   simple_secure_storage::SimpleSecureStoragePlugin::RegisterWithRegistrar(
-      flutter::PluginRegistrarManager::GetInstance()
-          ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+    flutter::PluginRegistrarManager::GetInstance()
+      ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar)
+  );
 }

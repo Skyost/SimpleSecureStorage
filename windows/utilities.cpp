@@ -3,8 +3,9 @@
 #include <windows.h>
 #include <dpapi.h>
 #include <shlobj.h>
-#include <stdexcept>
+
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 
 namespace simple_secure_storage {
@@ -51,8 +52,7 @@ namespace simple_secure_storage {
   // Get the path to the user's data directory
   std::wstring getUserDataDirectory() {
     wchar_t* userDataDir;
-    if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userDataDir) !=
-        S_OK) {
+    if (SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &userDataDir) != S_OK) {
       return L"";
     }
     std::wstring userDataDirectory(userDataDir);
@@ -66,32 +66,30 @@ namespace simple_secure_storage {
     if (decryptFile.is_open()) {
       DATA_BLOB encryptedData, dataVerify;
 
-      if (!decryptFile.read(reinterpret_cast<char*>(&encryptedData.cbData),
-                            sizeof(encryptedData.cbData))) {
+      if (!decryptFile.read(reinterpret_cast<char*>(&encryptedData.cbData), sizeof(encryptedData.cbData))) {
         return std::tuple<int, std::string>(1, "Failed to read encrypted file.");
       }
 
       std::vector<BYTE> buffer(encryptedData.cbData);
       encryptedData.pbData = buffer.data();
 
-      if (!decryptFile.read(reinterpret_cast<char*>(encryptedData.pbData),
-                            encryptedData.cbData)) {
-        return std::tuple<int, std::string>(1,
-                                            "Failed to decrypt file.");
+      if (!decryptFile.read(reinterpret_cast<char*>(encryptedData.pbData), encryptedData.cbData)) {
+        return std::tuple<int, std::string>(1, "Failed to decrypt file.");
       }
 
       if (!CryptUnprotectData(&encryptedData, nullptr,
                               nullptr,  // Optional entropy
                               nullptr,  // Reserved
                               nullptr,  // Optional PromptStruct
-                              CRYPTPROTECT_LOCAL_MACHINE, &dataVerify)) {
+                              CRYPTPROTECT_LOCAL_MACHINE,
+                              &dataVerify)) {
         DWORD errCode = GetLastError();
-        return std::tuple<int, std::string>(errCode,
-                                            "Failed to read encrypted file.");
+        return std::tuple<int, std::string>(errCode, "Failed to read encrypted file.");
       }
 
       std::string decryptedString(
-          reinterpret_cast<const char*>(dataVerify.pbData), dataVerify.cbData);
+        reinterpret_cast<const char*>(dataVerify.pbData), dataVerify.cbData
+      );
 
       LocalFree(dataVerify.pbData);
       decryptFile.close();
@@ -108,7 +106,7 @@ namespace simple_secure_storage {
       DATA_BLOB datain, dataout;
 
       datain.pbData =
-          reinterpret_cast<BYTE*>(const_cast<char*>(content.c_str()));
+        reinterpret_cast<BYTE*>(const_cast<char*>(content.c_str()));
       datain.cbData = (DWORD)(content.size() + 1);
 
       if (!CryptProtectData(&datain,
@@ -116,15 +114,14 @@ namespace simple_secure_storage {
                             nullptr,  // optional entropy not used.
                             nullptr,  // reserved.
                             nullptr,  // pass a promptstruct.
-                            CRYPTPROTECT_LOCAL_MACHINE, &dataout)) {
+                            CRYPTPROTECT_LOCAL_MACHINE,
+                            &dataout)) {
         DWORD errcode = GetLastError();
         return std::tuple<int, std::string>(errcode, "Failed to encrypt data.");
       }
 
-      if (!(encryptedfile.write(reinterpret_cast<char*>(&dataout.cbData),
-                                sizeof(dataout.cbData)) &&
-            encryptedfile.write(reinterpret_cast<char*>(dataout.pbData),
-                                dataout.cbData))) {
+      if (!(encryptedfile.write(reinterpret_cast<char*>(&dataout.cbData), sizeof(dataout.cbData)) &&
+            encryptedfile.write(reinterpret_cast<char*>(dataout.pbData), dataout.cbData))) {
         return std::tuple<int, std::string>(1, "Failed to write encrypted data.");
       }
 
@@ -134,4 +131,4 @@ namespace simple_secure_storage {
     return std::tuple<int, std::string>(1, "Failed to open file for writing.");
   }
 
-  }  // namespace bonsoir_windows
+}  // namespace simple_secure_storage

@@ -22,7 +22,7 @@ list(APPEND PLUGIN_SOURCES
   "simple_secure_storage_plugin.h"
 )
 
-# Fetch nlohmann/json.hpp using FetchContent
+# Fetch nlohmann/json.hpp using FetchContent.
 include(FetchContent)
 FetchContent_Declare(
         nlohmann_json

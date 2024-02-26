@@ -7,9 +7,10 @@
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
+#include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include <filesystem>
+
 #include "utilities.h"
 
 using namespace flutter;
@@ -18,176 +19,193 @@ namespace fs = std::filesystem;
 
 namespace simple_secure_storage {
 
-// static
-void SimpleSecureStoragePlugin::RegisterWithRegistrar(
-    flutter::PluginRegistrarWindows *registrar) {
-  auto channel =
+  // static
+  void SimpleSecureStoragePlugin::RegisterWithRegistrar(
+    flutter::PluginRegistrarWindows *registrar
+  ) {
+    auto channel =
       std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-          registrar->messenger(), "fr.skyost.simple_secure_storage",
-          &flutter::StandardMethodCodec::GetInstance());
+        registrar->messenger(), "fr.skyost.simple_secure_storage", &flutter::StandardMethodCodec::GetInstance()
+      );
 
-  auto plugin = std::make_unique<SimpleSecureStoragePlugin>();
+    auto plugin = std::make_unique<SimpleSecureStoragePlugin>();
 
-  channel->SetMethodCallHandler(
+    channel->SetMethodCallHandler(
       [plugin_pointer = plugin.get()](const auto &call, auto result) {
         plugin_pointer->HandleMethodCall(call, std::move(result));
-      });
+      }
+    );
 
-  registrar->AddPlugin(std::move(plugin));
-}
+    registrar->AddPlugin(std::move(plugin));
+  }
 
-SimpleSecureStoragePlugin::SimpleSecureStoragePlugin() {
+  SimpleSecureStoragePlugin::SimpleSecureStoragePlugin() {
     secureFileContent = json::object();
-}
+  }
 
-SimpleSecureStoragePlugin::~SimpleSecureStoragePlugin() {}
+  SimpleSecureStoragePlugin::~SimpleSecureStoragePlugin() {}
 
-void SimpleSecureStoragePlugin::HandleMethodCall(
+  void SimpleSecureStoragePlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &methodCall,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  const auto &method = methodCall.method_name();
-  const auto *arguments = std::get_if<EncodableMap>(methodCall.arguments());
-  if (method.compare("initialize") == 0) {
-    auto fileName = arguments->find(EncodableValue("namespace"));
-    fs::path filePath = fs::path (getUserDataDirectory()) /
-                 fs::path(toUtf16(fileName == arguments->end()
-                             ? "fr.skyost.simple_secure_storage"
-                             : std::get<std::string>(fileName->second)) +
-                 L".dat");
-    auto callResult = initialize(filePath.string());
-    if (std::get<0>(callResult) == 0) {
-      result->Success(flutter::EncodableValue(true));
-    } else {
-      result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
-    }
-  } else if (method.compare("has") == 0) {
-    if (!ensureInitialized(result)) {
-      return;
-    }
-    auto key =
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result
+  ) {
+    const auto &method = methodCall.method_name();
+    const auto *arguments = std::get_if<EncodableMap>(methodCall.arguments());
+    if (method.compare("initialize") == 0) {
+      auto directoryName = arguments->find(EncodableValue("appName"));
+      auto fileName = arguments->find(EncodableValue("namespace"));
+      fs::path directoryPath =
+        fs::path(getUserDataDirectory()) /
+        fs::path(directoryName == arguments->end() ? L"Flutter" : toUtf16(std::get<std::string>(directoryName->second)));
+      if (!fs::exists(directoryPath) || !fs::is_directory(directoryPath)) {
+        fs::create_directory(directoryPath);
+      }
+      fs::path filePath = directoryPath /
+                          fs::path(
+                            (fileName == arguments->end()
+                               ? L"fr.skyost.simple_secure_storage"
+                               : toUtf16(std::get<std::string>(fileName->second))) +
+                            L".dat"
+                          );
+      auto callResult = initialize(filePath.string());
+      if (std::get<0>(callResult) == 0) {
+        result->Success(flutter::EncodableValue(true));
+      } else {
+        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+      }
+    } else if (method.compare("has") == 0) {
+      if (!ensureInitialized(result)) {
+        return;
+      }
+      auto key =
         std::get<std::string>(arguments->find(EncodableValue("key"))->second);
-    result->Success(flutter::EncodableValue(has(key)));
-  } else if (method.compare("read") == 0) {
-    if (!ensureInitialized(result)) {
-      return;
-    }
-    auto key =
+      result->Success(flutter::EncodableValue(has(key)));
+    } else if (method.compare("read") == 0) {
+      if (!ensureInitialized(result)) {
+        return;
+      }
+      auto key =
         std::get<std::string>(arguments->find(EncodableValue("key"))->second);
-    auto value = read(key);
-    if (value.has_value()) {
-      result->Success(flutter::EncodableValue(value.value()));
-    } else {
-      result->Success(flutter::EncodableValue());
-    }
-  } else if (method.compare("write") == 0) {
-    if (!ensureInitialized(result)) {
-      return;
-    }
-    auto key =
+      auto value = read(key);
+      if (value.has_value()) {
+        result->Success(flutter::EncodableValue(value.value()));
+      } else {
+        result->Success(flutter::EncodableValue());
+      }
+    } else if (method.compare("write") == 0) {
+      if (!ensureInitialized(result)) {
+        return;
+      }
+      auto key =
         std::get<std::string>(arguments->find(EncodableValue("key"))->second);
-    auto value =
+      auto value =
         std::get<std::string>(arguments->find(EncodableValue("value"))->second);
-    auto callResult = write(key, value);
-    if (std::get<0>(callResult) == 0) {
-      result->Success(flutter::EncodableValue(true));
-    } else {
-      result->Error("initialization_error", std::get<1>(callResult),
-                    std::get<0>(callResult));
-    }
-  } else if (method.compare("delete") == 0) {
-    if (!ensureInitialized(result)) {
-      return;
-    }
-    auto key =
+      auto callResult = write(key, value);
+      if (std::get<0>(callResult) == 0) {
+        result->Success(flutter::EncodableValue(true));
+      } else {
+        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+      }
+    } else if (method.compare("delete") == 0) {
+      if (!ensureInitialized(result)) {
+        return;
+      }
+      auto key =
         std::get<std::string>(arguments->find(EncodableValue("key"))->second);
-    auto callResult = remove(key);
-    if (std::get<0>(callResult) == 0) {
-      result->Success(flutter::EncodableValue(true));
+      auto callResult = remove(key);
+      if (std::get<0>(callResult) == 0) {
+        result->Success(flutter::EncodableValue(true));
+      } else {
+        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+      }
+    } else if (method.compare("clear") == 0) {
+      if (!ensureInitialized(result)) {
+        return;
+      }
+      auto callResult = clear();
+      if (std::get<0>(callResult) == 0) {
+        result->Success(flutter::EncodableValue(true));
+      } else {
+        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+      }
     } else {
-      result->Error("initialization_error", std::get<1>(callResult),
-                    std::get<0>(callResult));
+      result->NotImplemented();
     }
-  } else if (method.compare("clear") == 0) {
-    if (!ensureInitialized(result)) {
-      return;
+  }
+
+  // Initializes the plugin and load the encrypted file content.
+  std::tuple<int, std::string> SimpleSecureStoragePlugin::initialize(
+    std::string filePath
+  ) {
+    secureFilePath = toUtf16(filePath);
+    if (!fs::exists(filePath)) {
+      return std::tuple<int, std::string>(0, "File doesn't exists.");
     }
-    auto callResult = clear();
-    if (std::get<0>(callResult) == 0) {
-      result->Success(flutter::EncodableValue(true));
-    } else {
-      result->Error("initialization_error", std::get<1>(callResult),
-                    std::get<0>(callResult));
+    std::tuple<int, std::string> result = readEncryptedData(filePath);
+    if (std::get<0>(result) != 0) {
+      return result;
     }
-  } else {
-    result->NotImplemented();
+    json json = json::parse(std::get<1>(result));
+    if (json.is_discarded()) {
+      return std::tuple<int, std::string>(1, "Parse failed.");
+    }
+    secureFileContent = json;
+    return std::tuple<int, std::string>(0, "Success.");
   }
-}
 
-// Initializes the plugin and load the encrypted file content.
-std::tuple<int, std::string> SimpleSecureStoragePlugin::initialize(
-    std::string filePath) {
-  secureFilePath = toUtf16(filePath);
-  if (!fs::exists(filePath)) {
-    return std::tuple<int, std::string>(0, "File doesn't exists.");
+  // Check if a key exists in the secure storage.
+  bool SimpleSecureStoragePlugin::has(const std::string &key) const {
+    return secureFileContent.contains(key);
   }
-  std::tuple<int, std::string> result = readEncryptedData(filePath);
-  if (std::get<0>(result) != 0) {
-    return result;
+
+  // Retrieve the value associated with a key from the secure storage.
+  std::optional<std::string> SimpleSecureStoragePlugin::read(const std::string &key) {
+    return has(key) ? std::optional<std::string>(secureFileContent[key])
+                    : std::optional<std::string>();
   }
-  secureFileContent = json::parse(std::get<1>(result));
-  return std::tuple<int, std::string>(0, "Success.");
-}
 
-// Check if a key exists in the secure storage.
-bool SimpleSecureStoragePlugin::has(const std::string &key) const {
-  return secureFileContent.contains(key);
-}
-
-// Retrieve the value associated with a key from the secure storage.
-std::optional<std::string> SimpleSecureStoragePlugin::read(const std::string &key) {
-  return has(key) ? std::optional<std::string>(secureFileContent[key])
-                  : std::optional<std::string>();
-}
-
-// Store a key-value pair in the secure storage.
-std::tuple<int, std::string> SimpleSecureStoragePlugin::write(
-    const std::string &key, const std::string &value) {
-  secureFileContent[key] = value;
-  return save();
-}
-
-// Remove a key-value pair from the secure storage.
-std::tuple<int, std::string> SimpleSecureStoragePlugin::remove(
-    const std::string &key) {
-  secureFileContent.erase(key);
-  return save();
-}
-
-// Clear all data from the secure storage.
-std::tuple<int, std::string> SimpleSecureStoragePlugin::clear() {
-  secureFileContent = json::object();
-  return save();
-}
-
-// Encrypts and save the content to the file.
-std::tuple<int, std::string> SimpleSecureStoragePlugin::save() const {
-  if (secureFileContent.empty() && fs::exists(secureFilePath.value())) {
-    fs::remove(secureFilePath.value());
-    return std::tuple<int, std::string>(0, "Deleted with success.");
+  // Store a key-value pair in the secure storage.
+  std::tuple<int, std::string> SimpleSecureStoragePlugin::write(
+    const std::string &key, const std::string &value
+  ) {
+    secureFileContent[key] = value;
+    return save();
   }
-  return writeEncryptedData(secureFilePath.value(), secureFileContent.dump());
-}
 
-// Ensures the plugin has been initialized.
-bool SimpleSecureStoragePlugin::ensureInitialized(
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> &result) {
-  if (!secureFilePath.has_value()) {
-    result->Error("file_is_null",
-                  "The secure file path is null. Make sure you have "
-                  "initialized the plugin.");
-    return false;
+  // Remove a key-value pair from the secure storage.
+  std::tuple<int, std::string> SimpleSecureStoragePlugin::remove(
+    const std::string &key
+  ) {
+    secureFileContent.erase(key);
+    return save();
   }
-  return true;
-}
+
+  // Clear all data from the secure storage.
+  std::tuple<int, std::string> SimpleSecureStoragePlugin::clear() {
+    secureFileContent = json::object();
+    return save();
+  }
+
+  // Encrypts and save the content to the file.
+  std::tuple<int, std::string> SimpleSecureStoragePlugin::save() const {
+    if (secureFileContent.empty() && fs::exists(secureFilePath.value())) {
+      fs::remove(secureFilePath.value());
+      return std::tuple<int, std::string>(0, "Deleted with success.");
+    }
+    return writeEncryptedData(secureFilePath.value(), secureFileContent.dump());
+  }
+
+  // Ensures the plugin has been initialized.
+  bool SimpleSecureStoragePlugin::ensureInitialized(
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> &result
+  ) {
+    if (!secureFilePath.has_value()) {
+      result->Error("file_is_null",
+                    "The secure file path is null. Make sure you have "
+                    "initialized the plugin.");
+      return false;
+    }
+    return true;
+  }
 
 }  // namespace simple_secure_storage

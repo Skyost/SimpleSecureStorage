@@ -3,7 +3,14 @@ import 'package:simple_secure_storage/src/platform_interface.dart';
 /// Base class of SimpleSecureStorage, allowing CRUD operations.
 class SimpleSecureStorage {
   /// Initializes the plugin.
-  static Future<void> initialize({ String? namespace }) => SimpleSecureStoragePlatform.instance.initialize(namespace: namespace);
+  static Future<void> initialize({
+    String? appName,
+    String? namespace,
+  }) =>
+      SimpleSecureStoragePlatform.instance.initialize(
+        appName: appName,
+        namespace: namespace,
+      );
 
   /// Returns whether the secure storage has the given [key].
   static Future<bool> has(String key) => SimpleSecureStoragePlatform.instance.has(key);

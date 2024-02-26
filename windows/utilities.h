@@ -9,6 +9,5 @@ namespace simple_secure_storage {
 
   std::tuple<int, std::string> readEncryptedData(std::string path);
 
-  std::tuple<int, std::string> writeEncryptedData(std::wstring path,
-                                                  std::string content);
-  }  // namespace bonsoir_windows
+  std::tuple<int, std::string> writeEncryptedData(std::wstring path, std::string content);
+}  // namespace simple_secure_storage

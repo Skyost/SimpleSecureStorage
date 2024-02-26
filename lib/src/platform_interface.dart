@@ -29,7 +29,11 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
   }
 
   /// Initializes the plugin.
-  Future<void> initialize({ String? namespace }) => Future.value();
+  Future<void> initialize({
+    String? appName,
+    String? namespace,
+  }) =>
+      Future.value();
 
   /// Returns whether the secure storage has the given [key].
   Future<bool> has(String key);
