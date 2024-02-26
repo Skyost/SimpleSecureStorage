@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 #include <libsecret/secret.h>
 #include <sys/utsname.h>
+#include <iostream>
 
 #include <cstring>
 #include <nlohmann/json.hpp>
@@ -30,9 +31,6 @@ static void simple_secure_storage_plugin_handle_method_call(
   const gchar* method = fl_method_call_get_name(methodCall);
   FlValue* arguments = fl_method_call_get_args(methodCall);
 
-  FlValue* key = fl_value_lookup_string(arguments, "key");
-  const gchar* keyString = key == nullptr ? nullptr : fl_value_get_string(key);
-
   if (strcmp(method, "initialize") == 0) {
     FlValue* name = fl_value_lookup_string(arguments, "appName");
     const gchar* nameString = "Simple Secure Storage";
@@ -40,61 +38,73 @@ static void simple_secure_storage_plugin_handle_method_call(
       name = fl_value_lookup_string(arguments, "namespace");
     }
     if (name != nullptr) {
-      nameString == fl_value_get_string(name);
+      nameString = fl_value_get_string(name);
     }
 
     auto callResult = initialize(nameString);
     if (std::get<0>(callResult)) {
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
     } else {
-      response = FL_METHOD_RESPONSE(fl_method_error_response_new("initialization_error", std::get<1>(callResult)));
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("initialization_error", std::get<1>(callResult).c_str(), nullptr));
     }
   } else if (strcmp(method, "has") == 0) {
-    if (!ensureInitialized(methodCall)) {
-      return;
-    }
-    response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(has(keyString))));
-  } else if (strcmp(method, "read") == 0) {
-    if (!ensureInitialized(methodCall)) {
-      return;
-    }
-    auto value = read(keyString);
-    if (value.has_value()) {
-      response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_string(value.c_str())));
+    auto callResult = ensureInitialized();
+    if (std::get<0>(callResult)) {
+      FlValue* key = fl_value_lookup_string(arguments, "key");
+      std::string keyString (fl_value_get_string(key));
+      response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(has(keyString))));
     } else {
-      response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("not_initialized", std::get<1>(callResult).c_str(), nullptr));
+    }
+  } else if (strcmp(method, "read") == 0) {
+    auto callResult = ensureInitialized();
+    if (!std::get<0>(callResult)) {
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("not_initialized", std::get<1>(callResult).c_str(), nullptr));
+    } else {
+      FlValue* key = fl_value_lookup_string(arguments, "key");
+      std::string keyString (fl_value_get_string(key));
+      auto value = read(keyString);
+      if (value.has_value()) {
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_string(value.value().c_str())));
+      } else {
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
+      }
     }
   } else if (strcmp(method, "write") == 0) {
-    if (!ensureInitialized(methodCall)) {
-      return;
+    auto callResult = ensureInitialized();
+    if (std::get<0>(callResult)) {
+      FlValue* key = fl_value_lookup_string(arguments, "key");
+      std::string keyString (fl_value_get_string(key));
+      FlValue* value = fl_value_lookup_string(arguments, "value");
+      std::string valueString (fl_value_get_string(value));
+      callResult = write(keyString, valueString);
     }
-    FlValue* value = fl_value_lookup_string(arguments, "value");
-    const gchar* valueString = value == nullptr ? nullptr : fl_value_get_string(value);
-    auto callResult = write(keyString, valueString);
     if (std::get<0>(callResult)) {
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
     } else {
-      response = FL_METHOD_RESPONSE(fl_method_error_response_new("write_error", std::get<1>(callResult)));
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("write_error", std::get<1>(callResult).c_str(), nullptr));
     }
   } else if (strcmp(method, "delete") == 0) {
-    if (!ensureInitialized(methodCall)) {
-      return;
+    auto callResult = ensureInitialized();
+    if (std::get<0>(callResult)) {
+      FlValue* key = fl_value_lookup_string(arguments, "key");
+      std::string keyString (fl_value_get_string(key));
+      callResult = del(keyString);
     }
-    auto callResult = del(keyString);
     if (std::get<0>(callResult)) {
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
     } else {
-      response = FL_METHOD_RESPONSE(fl_method_error_response_new("delete_error", std::get<1>(callResult)));
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("delete_error", std::get<1>(callResult).c_str(), nullptr));
     }
   } else if (strcmp(method, "clear") == 0) {
-    if (!ensureInitialized(methodCall)) {
-      return;
+    auto callResult = ensureInitialized();
+    if (std::get<0>(callResult)) {
+      callResult = clear();
     }
-    auto callResult = clear();
     if (std::get<0>(callResult)) {
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_bool(true)));
     } else {
-      response = FL_METHOD_RESPONSE(fl_method_error_response_new("clear_error", std::get<1>(callResult)));
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new("clear_error", std::get<1>(callResult).c_str(), nullptr));
     }
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
@@ -120,42 +130,45 @@ std::tuple<bool, std::string> initialize(const gchar* name) {
     return std::tuple<bool, std::string>(false, error->message);
   }
   if (result != NULL && strcmp(result, "") != 0) {
-    nlohmann::json json = nlohmann::json::parse(result, nullptr, false);
-    if (json.is_discarded()) {
-      std::tuple<bool, std::string>(false, "Parse failed.");
+    try {
+      nlohmann::json json = nlohmann::json::parse(result);
+      secureFileContent = json;
+    } catch (nlohmann::json::parse_error& error) {
+      return std::tuple<bool, std::string>(false, "JSON parse failed.");
     }
-    secureFileContent = json;
   }
   label = name;
   return std::tuple<bool, std::string>(true, "Success.");
 }
 
 // Check if a key exists in the secure storage.
-bool has(const gchar* key) {
+bool has(std::string key) {
   return secureFileContent.contains(key);
 }
 
 // Retrieve the value associated with a key from the secure storage.
-tl::optional<string> read(const gchar* key) {
+tl::optional<std::string> read(std::string key) {
   return has(key) ? tl::optional<std::string>(secureFileContent[key])
                   : tl::optional<std::string>();
 }
 
 // Store a key-value pair in the secure storage.
-std::tuple<bool, std::string> write(const gchar* key, const gchar* value) {
+std::tuple<bool, std::string> write(std::string key, std::string value) {
+  std::cout << key << std::endl;
+  std::cout << value << std::endl;
   secureFileContent[key] = value;
   return save();
 }
 
 // Remove a key-value pair from the secure storage.
-std::tuple<bool, std::string> del(const gchar* key) {
+std::tuple<bool, std::string> del(std::string key) {
   secureFileContent.erase(key);
   return save();
 }
 
 // Clear all data from the secure storage.
 std::tuple<bool, std::string> clear() {
-  secureFileContent = json::object();
+  secureFileContent = nlohmann::json::object();
   return save();
 }
 
@@ -168,26 +181,23 @@ std::tuple<bool, std::string> save() {
 
   const std::string output = secureFileContent.dump();
   g_autoptr(GError) error = nullptr;
-  bool result = secret_password_storev_sync(
-    &schema, attributes.getGHashTable(), nullptr, label.c_str(), output.c_str(), nullptr, &error
+  secret_password_storev_sync(
+    &schema, attributes.getGHashTable(), nullptr, label, output.c_str(), nullptr, &error
   );
 
   if (error) {
-    return std::tuple<bool, std::string>(false, "Unable to save to keyring.");
+    return std::tuple<bool, std::string>(false, error->message);
   }
 
   return std::tuple<bool, std::string>(true, "Success.");
 }
 
 // Ensures the plugin has been initialized.
-bool ensureInitialized(
-  FlMethodCall* methodCall
-) {
+std::tuple<bool, std::string> ensureInitialized() {
   if (label == nullptr) {
-    fl_method_call_respond(methodCall, FL_METHOD_RESPONSE(fl_method_error_response_new("not_initialized", "Please make sure you have initialized the plugin.")), nullptr);
-    return false;
+    return std::tuple<bool, std::string>(false, "Please make sure you have initialized the plugin.");
   }
-  return true;
+  return std::tuple<bool, std::string>(true, "Correctly initialized.");;
 }
 
 // Search with schemas fails in cold keyrings.
@@ -210,10 +220,10 @@ std::tuple<bool, std::string> warmupKeyring() {
 
   // Store a dummy entry without `schema`.
   bool success = secret_password_storev_sync(
-    NULL, attributes.getGHashTable(), nullptr, dummy_label, "The meaning of life", nullptr, &error
+    NULL, attributes.getGHashTable(), nullptr, dummy_label, "{}", nullptr, &error
   );
 
-  return std::tuple<bool, std::string>(success, success ? "Success." : "Failed to unlock the keyring.")
+  return std::tuple<bool, std::string>(success, success ? "Success." : "Failed to unlock the keyring.");
 }
 
 static void simple_secure_storage_plugin_dispose(GObject* object) {
