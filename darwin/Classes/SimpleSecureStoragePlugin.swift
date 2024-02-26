@@ -8,12 +8,14 @@
 public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     /// The query.
     var query: [AnyHashable: Any] = [:]
+    
+    /// The loaded values.
+    var values: [String: String] = [:]
 
     public override init() {
         super.init()
         query = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: KEYCHAIN_SERVICE
+            kSecClass as String: kSecClassGenericPassword
         ]
     }
 
@@ -29,61 +31,85 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        let arguments: [String: Any?] = call.arguments as! [String: Any?]
+        let arguments: [String: Any?] = call.arguments == nil ? [:] : (call.arguments as! [String: Any?])
         switch call.method {
         case "initialize":
-            query[kSecAttrService as String] = arguments["namespace"] == nil ? "fr.skyost.simple_secure_storage" : (arguments["namespace"] as! String)
-            result(true)
-        case "has":
-            result(read(call.key) != nil)
-        case "read":
-            result(read(call.key)!)
-        case "write":
-            let status = write(call.key!, forKey: call.value!)
+            query[kSecAttrAccessGroup as String] = arguments["namespace"] == nil ? "fr.skyost.simple_secure_storage" : (arguments["namespace"] as! String)
+            query[kSecAttrService as String] = arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String)
+            let status = initialize()
             if status == noErr {
                 result(true)
             } else {
-                result(FlutterError.init(code: "incorrect_return_code", message: "Error while writing data.", details: status))
+                result(FlutterError.init(code: "initialization_error", message: "Error while initializing.", details: status))
+            }
+        case "has":
+            result(has(arguments["key"] as! String))
+        case "read":
+            result(read(arguments["key"] as! String))
+        case "write":
+            let status = write(arguments["key"] as! String, arguments["value"] as! String)
+            if status == noErr {
+                result(true)
+            } else {
+                result(FlutterError.init(code: "write_error", message: "Error while writing data.", details: status))
             }
         case "delete":
-            let status = delete(call.key!)
+            let status = delete(arguments["key"] as! String)
             if status == noErr {
                 result(true)
             } else {
-                result(FlutterError.init(code: "incorrect_return_code", message: "Error while deleting data.", details: status))
+                result(FlutterError.init(code: "delete_error", message: "Error while deleting data.", details: status))
             }
         case "clear":
             let status = clear()
             if status == noErr {
                 result(true)
             } else {
-                result(FlutterError.init(code: "incorrect_return_code", message: "Error while clearing data.", details: status))
+                result(FlutterError.init(code: "clear_error", message: "Error while clearing data.", details: status))
             }
         default:
             result(FlutterMethodNotImplemented)
         }
     }
+    
+    /// Initialies the plugin by loading everything in the memory.
+    func initialize() -> OSStatus {
+        var search = query
+        search[kSecMatchLimit] = kSecMatchLimitAll
+        search[kSecReturnData] = kCFBooleanTrue
+        search[kSecMatchLimit] = kSecMatchLimitAll
+
+        var result: AnyObject?
+
+        let status = SecItemCopyMatching(search as CFDictionary, &result)
+        if status != noErr {
+            return status
+        }
+        
+        if let items = result as? [[NSString: Any?]] {
+            for item in items {
+                if let keyData = item[kSecAttrAccount] as? Data, let key = String(data: keyData, encoding: .utf8), let valueData = item[kSecValueData] as? Data, let value = String(data: valueData, encoding: .utf8){
+                    values[key] = value
+                }
+            }
+        }
+        return noErr
+    }
+    
+    /// Returns whether there is a value associated with the given key.
+    func has(_ key: String) -> Bool {
+        return values[key] != nil
+    }
 
     /// Returns the value associated with the given key.
     func read(_ key: String) -> String? {
-        var search = query
-        search[kSecAttrAccount] = key
-        search[kSecReturnData] = kCFBooleanTrue
-
-        var resultData: AnyObject?
-        var value: String?
-
-        if SecItemCopyMatching(search as CFDictionary, &resultData) == noErr {
-            if let data = resultData as? Data {
-                value = String(data: data, encoding: .utf8)
-            }
-        }
-
-        return value
+        return values[key]
     }
 
     /// Puts the given value for the given key.
-    func write(_ value: String, forKey key: String) -> OSStatus {
+    func write(_ key: String, _ value: String) -> OSStatus {
+        values[key] = value
+        
         var search = query
         search[kSecAttrAccount] = key
         search[kSecMatchLimit] = kSecMatchLimitOne
@@ -105,28 +131,16 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
 
     /// Removes the value associated with the given key.
     func delete(_ key: String) -> OSStatus {
+        values.removeValue(forKey: key)
         var search = query
         search[kSecAttrAccount] = key
-        search[kSecReturnData] = kCFBooleanTrue
         return SecItemDelete(search as CFDictionary)
     }
 
     /// Clears everything.
     func clear() -> OSStatus {
+        values.removeAll()
         let search = query
         return SecItemDelete(search as CFDictionary)
     }
-}
-
-/// Easily get "key" and "value" inside a method call.
-extension FlutterMethodCall {
-  /// The key.
-  var key: String? {
-    return arguments?["key"] as? String
-  }
-
-  /// The value.
-  var value: String? {
-    return arguments?["value"] as? String
-  }
 }
