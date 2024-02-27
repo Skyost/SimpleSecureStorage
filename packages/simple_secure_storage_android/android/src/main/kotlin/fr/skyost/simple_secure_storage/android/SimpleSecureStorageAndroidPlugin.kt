@@ -1,4 +1,4 @@
-package fr.skyost.simple_secure_storage
+package fr.skyost.simple_secure_storage.android
 
 import android.annotation.SuppressLint
 import android.content.Context

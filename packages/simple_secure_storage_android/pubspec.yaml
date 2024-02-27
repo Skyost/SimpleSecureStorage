@@ -14,8 +14,8 @@ flutter:
     platforms:
       implements: simple_secure_storage
       android:
-        package: fr.skyost.simple_secure_storage
-        pluginClass: SimpleSecureStoragePlugin
+        package: fr.skyost.simple_secure_storage.android
+        pluginClass: SimpleSecureStorageAndroidPlugin
 
 dependencies:
   flutter:

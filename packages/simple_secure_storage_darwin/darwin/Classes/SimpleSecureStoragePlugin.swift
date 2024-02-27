@@ -78,12 +78,15 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     func initialize() -> OSStatus {
         var search = query
         search[kSecMatchLimit] = kSecMatchLimitAll
-        search[kSecReturnData] = kCFBooleanTrue
+        search[kSecReturnAttributes] = kCFBooleanTrue
         search[kSecMatchLimit] = kSecMatchLimitAll
 
         var result: AnyObject?
 
         let status = SecItemCopyMatching(search as CFDictionary, &result)
+        if status == errSecItemNotFound {
+            return noErr
+        }
         if status != noErr {
             return status
         }

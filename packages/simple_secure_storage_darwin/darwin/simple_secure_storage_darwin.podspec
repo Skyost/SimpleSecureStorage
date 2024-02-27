@@ -3,7 +3,7 @@
 # Run `pod lib lint simple_secure_storage.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'simple_secure_storage'
+  s.name             = 'simple_secure_storage_darwin'
   s.version          = '0.0.1'
   s.summary          = 'Simple and secure storage for Flutter.'
   s.description      = <<-DESC

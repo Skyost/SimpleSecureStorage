@@ -1,4 +1,4 @@
-group 'fr.skyost.simple_secure_storage'
+group 'fr.skyost.simple_secure_storage_android'
 version '0.0.1'
 
 buildscript {
