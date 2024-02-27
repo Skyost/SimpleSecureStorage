@@ -10,7 +10,7 @@ I'm currently creating a TOTP app where secrets are encrypted using a master pas
 a secure place to store the encryption / decryption key.
 
 I knew that Flutter already had a such package called `flutter_secure_storage`. The only problem
-is that it have open 100+ issues on Github, and that the author seems to be currently inactive on
+is that it have 100+ open issues on Github, and that the author is currently inactive on
 Github.
 
 That's why I've decided to create my own solution : **Simple Secure Storage** (_SSS_).
@@ -33,8 +33,8 @@ Simple Secure Storage uses :
 which is supported since _iOS 2.0_ and _macOS 10.6_.
 * [`EncryptedSharedPreferences`](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 on Android, which supports a minimum SDK version of, at least, _21_.
-* [`Crypt32`](https://learn.microsoft.com/fr-fr/windows/win32/api/dpapi/), which seems to be available
-since Windows XP.
+* [Crypt32](https://learn.microsoft.com/fr-fr/windows/win32/api/dpapi/) on Windows, which seems to
+be available since Windows XP.
 Note that, on Windows, everything is stored inside a file located at `%APPDATA%/Local/appName/namespace.dat`.
 * [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux.
 * [`sembast_web`](https://pub.dev/packages/sembast_web) and [`webcrypto`](https://pub.dev/packages/webcrypto)
@@ -100,7 +100,7 @@ sudo apt install -y libsecret-1-dev
 
 ### Code snippet
 
-Here's simple example to get started.
+Here's a simple example to get started.
 
 ```dart
 // Initialize the plugin before using.
@@ -109,7 +109,7 @@ if (kIsWeb) {
   // To secure your data on Flutter web, we have to encrypt it using a password and salt.
   SimpleSecureStorageWeb.initializeWeb(keyPassword: 'password', encryptionSalt: 'salt');
 }
-await SimpleSecureStorage.initialize();
+await SimpleSecureStorage.initialize(appName: 'My app', namespace: 'fr.skyost.example');
 
 // Write a value.
 await SimpleSecureStorage.write('key', 'value');
@@ -128,14 +128,14 @@ await SimpleSecureStorage.clear();
 ```
 
 In the previous snippet, everything is read "on demand". Although in most implementations your data is
-already cached in the memory on the platform side, you may want to access it without always using
+already cached in the memory on the platform side, you may want to access it without always having to use
 `await`. To do so, use the class `CachedSimpleSecureStorage`.
 It behaves exactly like the snippet above, except that you don't have to call `await SimpleSecureStorage.initialize()`,
 but `await CachedSimpleSecureStorage.getInstance()`.
 
-If you want a real example, feel free to check
-[this one](https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage/example)
-on Github.
+If you want a more complete example, feel free to check and run
+[this one](https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage/example),
+which available on Github.
 
 ## Contributions
 
