@@ -374,42 +374,42 @@ packages:
       path: "../simple_secure_storage_android"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   simple_secure_storage_darwin:
     dependency: "direct main"
     description:
       path: "../simple_secure_storage_darwin"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   simple_secure_storage_linux:
     dependency: "direct main"
     description:
       path: "../simple_secure_storage_linux"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   simple_secure_storage_platform_interface:
     dependency: "direct main"
     description:
       path: "../simple_secure_storage_platform_interface"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   simple_secure_storage_web:
     dependency: "direct main"
     description:
       path: "../simple_secure_storage_web"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   simple_secure_storage_windows:
     dependency: "direct main"
     description:
       path: "../simple_secure_storage_windows"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   sky_engine:
     dependency: transitive
     description: flutter

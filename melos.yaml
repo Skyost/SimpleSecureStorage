@@ -8,15 +8,10 @@ packages:
 command:
   version:
     linkToCommits: true
-    branch: master
+    branch: main
     workspaceChangelog: false
     hooks:
-      pre: |
-        dart format "packages/bonsoir/lib" 
-        && "cd packages/bonsoir_platform_interface" 
-        && dart run "bonsoir_platform_interface:generate" 
-        && cd "../../" 
-        && melos analyze
+      pre: dart format "packages/simple_secure_storage/lib" && melos analyze
     message: |
       chore(release): Publish packages.
 

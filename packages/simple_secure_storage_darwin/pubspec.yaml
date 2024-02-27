@@ -3,7 +3,7 @@ description: Darwin (iOS & macOS) implementation of the SimpleSecureStorage plug
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_darwin
 issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
-version: 0.1.0
+version: 0.0.1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -23,7 +23,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  simple_secure_storage_platform_interface: ^0.1.0
+  simple_secure_storage_platform_interface: ^0.0.1
 
 dependency_overrides:
   simple_secure_storage_platform_interface:

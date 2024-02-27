@@ -21,7 +21,10 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
       return _instance!;
     }
 
-    await SimpleSecureStorage.initialize(appName: appName, namespace: namespace);
+    await SimpleSecureStorage.initialize(
+      appName: appName,
+      namespace: namespace,
+    );
 
     CachedSimpleSecureStorage instance = CachedSimpleSecureStorage._();
     await instance.refreshCache();
@@ -38,7 +41,7 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
   Map<String, String> list() => Map.of(_cache);
 
   /// Writes the [value] so that it corresponds to the [key].
-  Future<void> write(String key, String value, { bool flush = true }) async {
+  Future<void> write(String key, String value, {bool flush = true}) async {
     _cache[key] = value;
     if (flush) {
       await SimpleSecureStorage.write(key, value);
@@ -46,7 +49,7 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
   }
 
   /// Deletes the value associated to the given [key].
-  Future<void> delete(String key, { bool flush = true }) async {
+  Future<void> delete(String key, {bool flush = true}) async {
     _cache.remove(key);
     if (flush) {
       await SimpleSecureStorage.delete(key);
@@ -54,7 +57,7 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
   }
 
   /// Clears all values.
-  Future<void> clear({ bool flush = true }) async {
+  Future<void> clear({bool flush = true}) async {
     _cache.clear();
     if (flush) {
       await SimpleSecureStorage.clear();

@@ -52,7 +52,7 @@ packages:
       path: "../simple_secure_storage_platform_interface"
       relative: true
     source: path
-    version: "0.1.0"
+    version: "0.0.1"
   sky_engine:
     dependency: transitive
     description: flutter
