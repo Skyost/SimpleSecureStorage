@@ -34,7 +34,7 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
         let arguments: [String: Any?] = call.arguments == nil ? [:] : (call.arguments as! [String: Any?])
         switch call.method {
         case "initialize":
-            query[kSecAttrAccessGroup as String] = arguments["namespace"] == nil ? "fr.skyost.simple_secure_storage" : (arguments["namespace"] as! String)
+            // query[kSecAttrAccessGroup as String] = arguments["namespace"] == nil ? "fr.skyost.simple_secure_storage" : (arguments["namespace"] as! String)
             query[kSecAttrService as String] = arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String)
             let status = initialize()
             if status == noErr {
