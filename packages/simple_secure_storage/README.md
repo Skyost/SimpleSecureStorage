@@ -31,10 +31,13 @@ Simple Secure Storage uses :
 
 * [Keychain](https://developer.apple.com/documentation/security/keychain_services) on Apple devices,
 which is supported since _iOS 2.0_ and _macOS 10.6_.
-* [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
+* [`EncryptedSharedPreferences`](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 on Android, which supports a minimum SDK version of, at least, _21_.
-* [libsecret](https://wiki.gnome.org/Projects/Libsecret) on Linux.
-* [sembast_web](https://pub.dev/packages/sembast_web) and [webcrypto](https://pub.dev/packages/webcrypto)
+* [`Crypt32`](https://learn.microsoft.com/fr-fr/windows/win32/api/dpapi/), which seems to be available
+since Windows XP.
+Note that, on Windows, everything is stored inside a file located at `%APPDATA%/Local/appName/namespace.dat`.
+* [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux.
+* [`sembast_web`](https://pub.dev/packages/sembast_web) and [`webcrypto`](https://pub.dev/packages/webcrypto)
 on web.
 
 ### Installation
