@@ -107,9 +107,10 @@ Here's a simple example to get started.
 // Typically done in your `main()` method.
 if (kIsWeb) {
   // To secure your data on Flutter web, we have to encrypt it using a password and salt.
-  SimpleSecureStorageWeb.initializeWeb(keyPassword: 'password', encryptionSalt: 'salt');
+  await SimpleSecureStorage.initialize(WebInitializationOptions(keyPassword: 'password', encryptionSalt: 'salt'));
+} else {
+  await SimpleSecureStorage.initialize(); // Feel free to use `InitializationOptions` if you want here too.
 }
-await SimpleSecureStorage.initialize(appName: 'My app', namespace: 'fr.skyost.example');
 
 // Write a value.
 await SimpleSecureStorage.write('key', 'value');
@@ -135,7 +136,8 @@ but `await CachedSimpleSecureStorage.getInstance()`.
 
 If you want a more complete example, feel free to check and run
 [this one](https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage/example),
-which available on Github.
+which available on Github. Note that, using the example app on Darwin platforms (iOS & macOS),
+storage is not persistent because it's only configured to run locally in sandbox mode.
 
 ## Contributions
 
