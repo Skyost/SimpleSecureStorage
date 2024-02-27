@@ -2,4 +2,4 @@
 /// By Skyost.
 library simple_secure_storage_web;
 
-export 'src/web.dart';
+export 'src/initialization_options.dart';

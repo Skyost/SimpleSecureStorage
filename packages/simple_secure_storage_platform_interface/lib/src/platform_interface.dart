@@ -29,10 +29,7 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
   }
 
   /// Initializes the plugin.
-  Future<void> initialize({
-    String? appName,
-    String? namespace,
-  }) =>
+  Future<void> initialize(InitializationOptions options) =>
       Future.value();
 
   /// Returns whether the secure storage has the given [key].
@@ -52,4 +49,19 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
 
   /// Clears all values.
   Future<void> clear();
+}
+
+/// Allows to configure the plugin initialization.
+class InitializationOptions {
+  /// Your app name.
+  final String? appName;
+
+  /// Your app namespace.
+  final String? namespace;
+
+  /// Creates a new initialization options instance.
+  const InitializationOptions({
+    this.appName,
+    this.namespace,
+  });
 }

@@ -4,6 +4,7 @@ import 'package:sembast/sembast.dart';
 import 'package:sembast_web/sembast_web.dart';
 import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 import 'package:simple_secure_storage_web/src/crypto.dart';
+import 'package:simple_secure_storage_web/src/initialization_options.dart';
 
 /// A web implementation of the SimpleSecureStoragePlatform of the SimpleSecureStorage plugin.
 class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
@@ -13,40 +14,19 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   /// The database instance.
   Database? database;
 
-  /// The key password.
-  String? _keyPassword;
-
-  /// The encryption salt.
-  String? _encryptionSalt;
-
   /// Registers this implementation.
   static void registerWith(Registrar registrar) => SimpleSecureStoragePlatform.instance = SimpleSecureStorageWeb();
 
-  /// Initializes the web instance.
-  static void initializeWeb({
-    String? keyPassword,
-    String? encryptionSalt,
-  }) async {
-    if (SimpleSecureStoragePlatform.instance is SimpleSecureStorageWeb) {
-      (SimpleSecureStoragePlatform.instance as SimpleSecureStorageWeb)._keyPassword = keyPassword;
-      (SimpleSecureStoragePlatform.instance as SimpleSecureStorageWeb)._encryptionSalt = encryptionSalt;
-    }
-  }
-
   @override
-  Future<void> initialize({
-    String? appName,
-    String? namespace,
-  }) async {
-    String namespaceString = namespace ?? 'fr.skyost.simple_secure_storage';
-    String appNameString = appName ?? 'Simple Secure Storage';
+  Future<void> initialize(InitializationOptions options) async {
+    WebInitializationOptions webOptions = options is WebInitializationOptions ? options : WebInitializationOptions.from(options);
     EncryptedDatabaseFactory factory = EncryptedDatabaseFactory(
       databaseFactory: databaseFactoryWeb,
-      password: _keyPassword ?? '$namespaceString.$appNameString',
-      salt: _encryptionSalt ?? '_salt',
+      password: webOptions.keyPassword,
+      salt: webOptions.encryptionSalt,
     );
     store = stringMapStoreFactory.store();
-    database = await factory.openDatabase(namespaceString, version: 1);
+    database = await factory.openDatabase(webOptions.namespace, version: 1);
   }
 
   @override

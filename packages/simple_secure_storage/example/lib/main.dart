@@ -7,10 +7,7 @@ import 'package:simple_secure_storage/simple_secure_storage.dart';
 /// Hello world !
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SimpleSecureStorage.initialize();
-  if (kIsWeb) {
-    SimpleSecureStorageWeb.initializeWeb(keyPassword: 'password', encryptionSalt: 'salt');
-  }
+  await SimpleSecureStorage.initialize(WebInitializationOptions(keyPassword: 'password', encryptionSalt: 'salt'));
   runApp(const SimpleSecureStorageExampleApp());
 }
 

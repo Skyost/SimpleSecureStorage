@@ -7,15 +7,12 @@ class MethodChannelSimpleSecureStorage extends SimpleSecureStoragePlatform {
   final MethodChannel _methodChannel = const MethodChannel('fr.skyost.simple_secure_storage');
 
   @override
-  Future<void> initialize({
-    String? appName,
-    String? namespace,
-  }) =>
+  Future<void> initialize(InitializationOptions options) =>
       _methodChannel.invokeMethod(
         'initialize',
         {
-          if (appName != null) 'appName': appName,
-          if (namespace != null) 'namespace': namespace,
+          if (options.appName != null) 'appName': options.appName,
+          if (options.namespace != null) 'namespace': options.namespace,
         },
       );
 

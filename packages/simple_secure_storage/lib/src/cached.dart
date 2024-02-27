@@ -1,4 +1,5 @@
 import 'package:simple_secure_storage/src/storage.dart';
+import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 
 /// Allows to load and cache all values of the secure storage.
 /// This means, no future and instant access of all your values.
@@ -13,18 +14,12 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
   CachedSimpleSecureStorage._();
 
   /// Returns the cached simple secure storage instance.
-  static Future<CachedSimpleSecureStorage> getInstance({
-    String? appName,
-    String? namespace,
-  }) async {
+  static Future<CachedSimpleSecureStorage> getInstance([InitializationOptions options = const InitializationOptions()]) async {
     if (_instance != null) {
       return _instance!;
     }
 
-    await SimpleSecureStorage.initialize(
-      appName: appName,
-      namespace: namespace,
-    );
+    await SimpleSecureStorage.initialize(options);
 
     CachedSimpleSecureStorage instance = CachedSimpleSecureStorage._();
     await instance.refreshCache();

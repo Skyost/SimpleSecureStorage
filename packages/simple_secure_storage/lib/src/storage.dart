@@ -3,14 +3,8 @@ import 'package:simple_secure_storage_platform_interface/simple_secure_storage_p
 /// Base class of SimpleSecureStorage, allowing CRUD operations.
 class SimpleSecureStorage {
   /// Initializes the plugin.
-  static Future<void> initialize({
-    String? appName,
-    String? namespace,
-  }) =>
-      SimpleSecureStoragePlatform.instance.initialize(
-        appName: appName,
-        namespace: namespace,
-      );
+  static Future<void> initialize([InitializationOptions options = const InitializationOptions()]) =>
+      SimpleSecureStoragePlatform.instance.initialize(options);
 
   /// Returns whether the secure storage has the given [key].
   static Future<bool> has(String key) =>
