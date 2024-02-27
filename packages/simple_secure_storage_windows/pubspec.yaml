@@ -1,5 +1,5 @@
 name: simple_secure_storage_windows
-description: Windows implementation of the SimpleSecureStorage plugin.
+description: Windows implementation of the Simple Secure Storage plugin.
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_windows
 issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
