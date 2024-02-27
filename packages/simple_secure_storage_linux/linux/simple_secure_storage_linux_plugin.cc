@@ -165,8 +165,6 @@ tl::optional<std::string> read(std::string key) {
 
 // Store a key-value pair in the secure storage.
 std::tuple<bool, std::string> write(std::string key, std::string value) {
-  std::cout << key << std::endl;
-  std::cout << value << std::endl;
   secureFileContent[key] = value;
   return save();
 }
