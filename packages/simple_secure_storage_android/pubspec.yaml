@@ -3,7 +3,7 @@ description: Android implementation of the SimpleSecureStorage plugin.
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_android
 issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
-version: 0.0.1
+version: 0.1.0
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -20,7 +20,7 @@ flutter:
 dependencies:
   flutter:
     sdk: flutter
-  simple_secure_storage_platform_interface: ^0.0.1
+  simple_secure_storage_platform_interface: ^0.1.0
 
 dependency_overrides:
   simple_secure_storage_platform_interface:
