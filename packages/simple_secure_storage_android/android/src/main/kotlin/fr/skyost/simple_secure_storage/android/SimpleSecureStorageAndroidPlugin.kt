@@ -19,7 +19,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 /**
  * SimpleSecureStorage Android plugin.
  */
-class SimpleSecureStoragePlugin: FlutterPlugin, MethodCallHandler {
+class SimpleSecureStorageAndroidPlugin: FlutterPlugin, MethodCallHandler {
   /**
    * The MethodChannel that will the communication between Flutter and native Android.
    *
