@@ -1,13 +1,16 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:simple_secure_storage/simple_secure_storage.dart';
 
 /// Hello world !
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SimpleSecureStorage.initialize();
+  await SimpleSecureStorage.initialize();
+  if (kIsWeb) {
+    SimpleSecureStorageWeb.initializeWeb(keyPassword: 'password', encryptionSalt: 'salt');
+  }
   runApp(const SimpleSecureStorageExampleApp());
 }
 

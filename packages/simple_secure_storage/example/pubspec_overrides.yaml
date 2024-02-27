@@ -1,4 +1,4 @@
-# melos_managed_dependency_overrides: simple_secure_storage,simple_secure_storage_android,simple_secure_storage_darwin,simple_secure_storage_linux,simple_secure_storage_platform_interface,simple_secure_storage_windows
+# melos_managed_dependency_overrides: simple_secure_storage,simple_secure_storage_android,simple_secure_storage_darwin,simple_secure_storage_linux,simple_secure_storage_platform_interface,simple_secure_storage_windows,simple_secure_storage_web
 dependency_overrides:
   simple_secure_storage:
     path: ..
@@ -10,5 +10,7 @@ dependency_overrides:
     path: ..\\..\\simple_secure_storage_linux
   simple_secure_storage_platform_interface:
     path: ..\\..\\simple_secure_storage_platform_interface
+  simple_secure_storage_web:
+    path: ..\\..\\simple_secure_storage_web
   simple_secure_storage_windows:
     path: ..\\..\\simple_secure_storage_windows

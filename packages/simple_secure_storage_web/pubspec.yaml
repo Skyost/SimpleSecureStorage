@@ -15,14 +15,16 @@ flutter:
       implements: simple_secure_storage
       web:
         pluginClass: SimpleSecureStorageWeb
-        fileName: simple_secure_storage_web.dart
+        fileName: src/web.dart
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
+  sembast_web: ^2.2.0
   simple_secure_storage_platform_interface: ^0.1.0
+  webcrypto: ^0.5.5
 
 dependency_overrides:
   simple_secure_storage_platform_interface:
