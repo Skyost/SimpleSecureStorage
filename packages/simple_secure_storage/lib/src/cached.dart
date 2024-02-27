@@ -14,7 +14,9 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
   CachedSimpleSecureStorage._();
 
   /// Returns the cached simple secure storage instance.
-  static Future<CachedSimpleSecureStorage> getInstance([InitializationOptions options = const InitializationOptions()]) async {
+  static Future<CachedSimpleSecureStorage> getInstance([
+    InitializationOptions options = const InitializationOptions(),
+  ]) async {
     if (_instance != null) {
       return _instance!;
     }
