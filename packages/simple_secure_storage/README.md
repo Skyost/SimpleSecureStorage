@@ -39,6 +39,14 @@ on web.
 
 ### Installation
 
+Run the following command to add Simple Secure Storage to your Flutter project :
+
+```shell
+flutter pub add simple_secure_storage
+```
+
+Then, please make sure you follow the specific instructions for each platform you're targeting.
+
 #### Android
 
 Update the minimum SDK version in your `android/app/build.gradle` :
@@ -54,7 +62,7 @@ android {
 }
 ```
 
-Also, as stated on [Android Developers](),
+Also, as stated on [Android Developers](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences),
 
 > **WARNING:** The preference file should not be backed up with Auto Backup.
 > When restoring the file it is likely the key used to encrypt it will no longer be present.
