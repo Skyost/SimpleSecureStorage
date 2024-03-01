@@ -1,7 +1,10 @@
 # Simple Secure Storage
 
-A simple and secure storage system for Flutter.
+A simple and secure storage system for Flutter. Supports Android, iOS, macOS, Windows and web !
 
+[![Pub Likes](https://img.shields.io/pub/likes/simple_secure_storage?style=flat-square)](https://pub.dev/packages/simple_secure_storage/score)
+[![Pub Popularity](https://img.shields.io/pub/popularity/simple_secure_storage?style=flat-square)](https://pub.dev/packages/simple_secure_storage/score)
+[![Pub Points](https://img.shields.io/pub/points/simple_secure_storage?style=flat-square)](https://pub.dev/packages/simple_secure_storage/score)
 [![Maintained with Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square)](https://github.com/invertase/melos)
 
 ## Motivations
