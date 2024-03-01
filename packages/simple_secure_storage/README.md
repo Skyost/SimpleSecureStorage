@@ -34,9 +34,10 @@ which is supported since _iOS 2.0_ and _macOS 10.6_.
 * [`EncryptedSharedPreferences`](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 on Android, which supports a minimum SDK version of, at least, _21_.
 * [Crypt32](https://learn.microsoft.com/fr-fr/windows/win32/api/dpapi/) on Windows, which seems to
-be available since Windows XP.
+be available since _Windows XP_.
 Note that, on Windows, everything is stored inside a file located at `%APPDATA%/Local/appName/namespace.dat`.
-* [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux.
+* [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux. Therefore, you need a _secret service_ (`gnome_keyring`
+is commonly installed).
 * [`sembast_web`](https://pub.dev/packages/sembast_web) and [`webcrypto`](https://pub.dev/packages/webcrypto)
 on web.
 
