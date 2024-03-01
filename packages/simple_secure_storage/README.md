@@ -107,7 +107,7 @@ Here's a simple example to get started.
 // Initialize the plugin before using.
 // Typically done in your `main()` method.
 if (kIsWeb) {
-  // To secure your data on Flutter web, we have to encrypt it using a password and salt.
+  // To secure your data on Flutter web, we have to encrypt it using a password and a salt.
   await SimpleSecureStorage.initialize(WebInitializationOptions(keyPassword: 'password', encryptionSalt: 'salt'));
 } else {
   await SimpleSecureStorage.initialize(); // Feel free to use `InitializationOptions` if you want here too.
