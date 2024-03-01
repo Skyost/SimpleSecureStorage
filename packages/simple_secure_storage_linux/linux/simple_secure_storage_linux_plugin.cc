@@ -6,7 +6,7 @@
 #include <libsecret/secret.h>
 #include <sys/utsname.h>
 #include <iostream>
-
+#include <map>
 #include <cstring>
 
 #include "simple_secure_storage_linux_plugin_private.h"
@@ -72,9 +72,10 @@ static void simple_secure_storage_linux_plugin_handle_method_call(
   } else if (strcmp(method, "list") == 0) {
     auto callResult = ensureInitialized();
     if (std::get<0>(callResult)) {
+      auto items = list();
       auto map = fl_value_new_map();
-      for (auto& element : secureFileContent.items()) {
-        fl_value_set_string_take(map, std::string(element.key()).c_str(), fl_value_new_string(std::string(element.value()).c_str()));
+      for (auto& element : items) {
+        fl_value_set_string_take(map, std::string(element.first).c_str(), fl_value_new_string(std::string(element.second).c_str()));
       }
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(map));
     } else {
@@ -125,8 +126,11 @@ static void simple_secure_storage_linux_plugin_handle_method_call(
 
 // Initializes the plugin and load the encrypted file content.
 std::tuple<bool, std::string> initialize(const gchar* name) {
-  GError* error = NULL;
-
+  secretSchema = {
+    name, SECRET_SCHEMA_NONE, {
+        {"key", SECRET_SCHEMA_ATTRIBUTE_STRING},
+    }
+  };
   std::tuple<bool, std::string> warmupResult = warmupKeyring(name);
   if (!std::get<0>(warmupResult)) {
     return warmupResult;
@@ -144,34 +148,59 @@ bool has(std::string key) {
 // Retrieve the value associated with a key from the secure storage.
 tl::optional<std::string> read(std::string key) {
   GError* error = NULL;
-  gchar* value = secret_password_lookup_sync(SECRET_SCHEMA, SECRET_COLLECTION_DEFAULT, &error, "key", key, NULL);
+  gchar* value = secret_password_lookup_sync(&secretSchema, NULL, &error, "key", key.c_str(), NULL);
   if (error != NULL) {
     std::cerr << (error->message);
     g_error_free(error);
   }
-  tl::optional<std::string> result == NULL ? tl::optional<std::string>() : td::optional<std::string>(std::string(value));
+  tl::optional<std::string> result = value == NULL ? tl::optional<std::string>() : tl::optional<std::string>(std::string(value));
   secret_password_free(value);
+  return result;
+}
+
+// Retrieve the value associated with a key from the secure storage.
+std::map<std::string, std::string> list() {
+  GError* error = NULL;
+  GList* list = secret_password_search_sync(&secretSchema, SECRET_SEARCH_ALL, NULL, &error, NULL);
+  if (error != NULL) {
+    std::cerr << (error->message);
+    g_error_free(error);
+  }
+  std::map<std::string, std::string> result{};
+  GList* iterator;
+  for (iterator = list; iterator != NULL; iterator = iterator->next) {
+    auto item = (SecretRetrievable*)iterator->data;
+    auto value = secret_retrievable_retrieve_secret_sync(item, NULL, &error);
+    if (error == NULL) {
+      std::string label = std::string(secret_retrievable_get_label(item));
+      result[label] = secret_value_get_text(value);
+    } else {
+      std::cerr << (error->message);
+      g_error_free(error);
+    }
+    secret_value_unref(value);
+  }
   return result;
 }
 
 // Store a key-value pair in the secure storage.
 std::tuple<bool, std::string> write(std::string key, std::string value) {
   GError* error = NULL;
-  secret_password_store_sync(SECRET_SCHEMA, SECRET_COLLECTION_DEFAULT, key.c_str(), value.c_str(), &error, "key", key, NULL);
+  secret_password_store_sync(&secretSchema, SECRET_COLLECTION_DEFAULT, key.c_str(), value.c_str(), NULL, &error, "key", key.c_str(), NULL);
   return getReturnValue(error);
 }
 
 // Remove a key-value pair from the secure storage.
 std::tuple<bool, std::string> del(std::string key) {
   GError* error = NULL;
-  secret_password_clear_sync(SECRET_SCHEMA, NULL, &error, "key", key, NULL);
+  secret_password_clear_sync(&secretSchema, NULL, &error, "key", key.c_str(), NULL);
   return getReturnValue(error);
 }
 
 // Clear all data from the secure storage.
 std::tuple<bool, std::string> clear() {
   GError* error = NULL;
-  secret_password_clear_sync(SECRET_SCHEMA, NULL, &error, NULL);
+  secret_password_clear_sync(&secretSchema, NULL, &error, NULL);
   return getReturnValue(error);
 }
 
@@ -195,18 +224,21 @@ std::tuple<bool, std::string> ensureInitialized() {
 std::tuple<bool, std::string> warmupKeyring(const gchar* name) {
   GError* error = nullptr;
 
+  std::string key = std::string(name) + " Control";
+
   // Store a dummy entry without `schema`.
-  bool success = secret_password_storev_sync(
+  secret_password_store_sync(
     NULL,
+    SECRET_COLLECTION_DEFAULT,
+    key.c_str(),
+    "The meaning of life.",
+    NULL,
+    &error,
     "explanation",
     "Because of quirks in the gnome libsecret API, "
     "SimpleSecureStorage needs to store a dummy entry to guarantee that "
     "this keyring was properly unlocked. More details at http://crbug.com/660005.",
-    NULL,
-    name + " Control",
-    "The meaning of life.",
-    NULL,
-    &error
+    NULL
   );
 
   return getReturnValue(error);
