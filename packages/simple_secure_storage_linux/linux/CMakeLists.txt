@@ -17,13 +17,6 @@ list(APPEND PLUGIN_SOURCES
   "simple_secure_storage_linux_plugin.cc"
 )
 
-
-# Fetch nlohmann/json.hpp using FetchContent.
-include(FetchContent)
-
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
-FetchContent_MakeAvailable(json)
-
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
@@ -52,7 +45,6 @@ include_directories(${LIBSECRET_INCLUDE_DIRS})
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::LIBSECRET)
-target_link_libraries(${PLUGIN_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an

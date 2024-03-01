@@ -6,9 +6,8 @@
 #include <libsecret/secret.h>
 #include <sys/utsname.h>
 #include <iostream>
-
+#include <map>
 #include <cstring>
-#include <nlohmann/json.hpp>
 
 #include "simple_secure_storage_linux_plugin_private.h"
 
@@ -73,9 +72,10 @@ static void simple_secure_storage_linux_plugin_handle_method_call(
   } else if (strcmp(method, "list") == 0) {
     auto callResult = ensureInitialized();
     if (std::get<0>(callResult)) {
+      auto items = list();
       auto map = fl_value_new_map();
-      for (auto& element : secureFileContent.items()) {
-        fl_value_set_string_take(map, std::string(element.key()).c_str(), fl_value_new_string(std::string(element.value()).c_str()));
+      for (auto& element : items) {
+        fl_value_set_string_take(map, std::string(element.first).c_str(), fl_value_new_string(std::string(element.second).c_str()));
       }
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(map));
     } else {
@@ -126,87 +126,90 @@ static void simple_secure_storage_linux_plugin_handle_method_call(
 
 // Initializes the plugin and load the encrypted file content.
 std::tuple<bool, std::string> initialize(const gchar* name) {
-  g_autoptr(GError) error = nullptr;
-
-  std::tuple<bool, std::string> warmupResult = warmupKeyring();
+  secretSchema = {
+    name, SECRET_SCHEMA_NONE, {
+        {"key", SECRET_SCHEMA_ATTRIBUTE_STRING},
+    }
+  };
+  std::tuple<bool, std::string> warmupResult = warmupKeyring(name);
   if (!std::get<0>(warmupResult)) {
     return warmupResult;
   }
 
-  secret_autofree gchar* result = secret_password_lookupv_sync(
-    &schema, attributes.getGHashTable(), nullptr, &error
-  );
-
-  if (error) {
-    return std::tuple<bool, std::string>(false, error->message);
-  }
-  if (result != NULL && strcmp(result, "") != 0) {
-    try {
-      nlohmann::json json = nlohmann::json::parse(result);
-      secureFileContent = json;
-    } catch (nlohmann::json::parse_error& error) {
-      return std::tuple<bool, std::string>(false, "JSON parse failed.");
-    }
-  }
-  label = name;
+  initialized = true;
   return std::tuple<bool, std::string>(true, "Success.");
 }
 
 // Check if a key exists in the secure storage.
 bool has(std::string key) {
-  return secureFileContent.contains(key);
+  return read(key).has_value();
 }
 
 // Retrieve the value associated with a key from the secure storage.
 tl::optional<std::string> read(std::string key) {
-  return has(key) ? tl::optional<std::string>(secureFileContent[key])
-                  : tl::optional<std::string>();
+  GError* error = NULL;
+  gchar* value = secret_password_lookup_sync(&secretSchema, NULL, &error, "key", key.c_str(), NULL);
+  if (error != NULL) {
+    std::cerr << (error->message);
+    g_error_free(error);
+  }
+  tl::optional<std::string> result = value == NULL ? tl::optional<std::string>() : tl::optional<std::string>(std::string(value));
+  secret_password_free(value);
+  return result;
+}
+
+// Retrieve the value associated with a key from the secure storage.
+std::map<std::string, std::string> list() {
+  GError* error = NULL;
+  GList* list = secret_password_search_sync(&secretSchema, SECRET_SEARCH_ALL, NULL, &error, NULL);
+  if (error != NULL) {
+    std::cerr << (error->message);
+    g_error_free(error);
+  }
+  std::map<std::string, std::string> result{};
+  GList* iterator;
+  for (iterator = list; iterator != NULL; iterator = iterator->next) {
+    auto item = (SecretRetrievable*)iterator->data;
+    auto value = secret_retrievable_retrieve_secret_sync(item, NULL, &error);
+    if (error == NULL) {
+      std::string label = std::string(secret_retrievable_get_label(item));
+      result[label] = secret_value_get_text(value);
+    } else {
+      std::cerr << (error->message);
+      g_error_free(error);
+    }
+    secret_value_unref(value);
+  }
+  return result;
 }
 
 // Store a key-value pair in the secure storage.
 std::tuple<bool, std::string> write(std::string key, std::string value) {
-  secureFileContent[key] = value;
-  return save();
+  GError* error = NULL;
+  secret_password_store_sync(&secretSchema, SECRET_COLLECTION_DEFAULT, key.c_str(), value.c_str(), NULL, &error, "key", key.c_str(), NULL);
+  return getReturnValue(error);
 }
 
 // Remove a key-value pair from the secure storage.
 std::tuple<bool, std::string> del(std::string key) {
-  secureFileContent.erase(key);
-  return save();
+  GError* error = NULL;
+  secret_password_clear_sync(&secretSchema, NULL, &error, "key", key.c_str(), NULL);
+  return getReturnValue(error);
 }
 
 // Clear all data from the secure storage.
 std::tuple<bool, std::string> clear() {
-  secureFileContent = nlohmann::json::object();
-  return save();
-}
-
-// Save the content to the keyring.
-std::tuple<bool, std::string> save() {
-  std::tuple<bool, std::string> warmupResult = warmupKeyring();
-  if (!std::get<0>(warmupResult)) {
-    return warmupResult;
-  }
-
-  const std::string output = secureFileContent.dump();
-  g_autoptr(GError) error = nullptr;
-  secret_password_storev_sync(
-    &schema, attributes.getGHashTable(), nullptr, label, output.c_str(), nullptr, &error
-  );
-
-  if (error) {
-    return std::tuple<bool, std::string>(false, error->message);
-  }
-
-  return std::tuple<bool, std::string>(true, "Success.");
+  GError* error = NULL;
+  secret_password_clear_sync(&secretSchema, NULL, &error, NULL);
+  return getReturnValue(error);
 }
 
 // Ensures the plugin has been initialized.
 std::tuple<bool, std::string> ensureInitialized() {
-  if (label == nullptr) {
-    return std::tuple<bool, std::string>(false, "Please make sure you have initialized the plugin.");
+  if (initialized) {
+    return std::tuple<bool, std::string>(true, "Correctly initialized.");
   }
-  return std::tuple<bool, std::string>(true, "Correctly initialized.");;
+  return std::tuple<bool, std::string>(false, "Please make sure you have initialized the plugin.");
 }
 
 // Search with schemas fails in cold keyrings.
@@ -216,23 +219,39 @@ std::tuple<bool, std::string> ensureInitialized() {
 // a workaround as implemented in http://crbug.com/660005. Reason being that with the lookup
 // approach we can't distinguish whether the keyring was actually unlocked or whether the user
 // cancelled the password prompt.
-std::tuple<bool, std::string> warmupKeyring() {
-  g_autoptr(GError) error = nullptr;
+//
+// Kudos to FlutterSecureStorage for this one.
+std::tuple<bool, std::string> warmupKeyring(const gchar* name) {
+  GError* error = nullptr;
 
-  FHashTable attributes;
-  attributes.insert("explanation",
-                    "Because of quirks in the gnome libsecret API, "
-                    "flutter_secret_storage needs to store a dummy entry to guarantee that "
-                    "this keyring was properly unlocked. More details at http://crbug.com/660005.");
-
-  const gchar* dummy_label = "FlutterSecureStorage Control";
+  std::string key = std::string(name) + " Control";
 
   // Store a dummy entry without `schema`.
-  bool success = secret_password_storev_sync(
-    NULL, attributes.getGHashTable(), nullptr, dummy_label, "{}", nullptr, &error
+  secret_password_store_sync(
+    NULL,
+    SECRET_COLLECTION_DEFAULT,
+    key.c_str(),
+    "The meaning of life.",
+    NULL,
+    &error,
+    "explanation",
+    "Because of quirks in the gnome libsecret API, "
+    "SimpleSecureStorage needs to store a dummy entry to guarantee that "
+    "this keyring was properly unlocked. More details at http://crbug.com/660005.",
+    NULL
   );
 
-  return std::tuple<bool, std::string>(success, success ? "Success." : "Failed to unlock the keyring.");
+  return getReturnValue(error);
+}
+
+// Returns the return value associated to the given error pointer.
+std::tuple<bool, std::string> getReturnValue(GError* error) {
+  if (error != NULL) {
+    std::string message = error->message;
+    g_error_free(error);
+    return std::tuple<bool, std::string>(false, message);
+  }
+  return std::tuple<bool, std::string>(true, "Success.");
 }
 
 static void simple_secure_storage_linux_plugin_dispose(GObject* object) {
