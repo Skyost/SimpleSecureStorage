@@ -1,5 +1,5 @@
 name: simple_secure_storage
-description: "Simple and secure storage for Flutter."
+description: "Simple and secure storage for Flutter. Supports Android, iOS, macOS, Windows and web !"
 version: 0.1.1
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage
