@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include <cstring>
-#include <nlohmann/json.hpp>
 
 #include "simple_secure_storage_linux_plugin_private.h"
 
@@ -126,87 +125,62 @@ static void simple_secure_storage_linux_plugin_handle_method_call(
 
 // Initializes the plugin and load the encrypted file content.
 std::tuple<bool, std::string> initialize(const gchar* name) {
-  g_autoptr(GError) error = nullptr;
+  GError* error = NULL;
 
-  std::tuple<bool, std::string> warmupResult = warmupKeyring();
+  std::tuple<bool, std::string> warmupResult = warmupKeyring(name);
   if (!std::get<0>(warmupResult)) {
     return warmupResult;
   }
 
-  secret_autofree gchar* result = secret_password_lookupv_sync(
-    &schema, attributes.getGHashTable(), nullptr, &error
-  );
-
-  if (error) {
-    return std::tuple<bool, std::string>(false, error->message);
-  }
-  if (result != NULL && strcmp(result, "") != 0) {
-    try {
-      nlohmann::json json = nlohmann::json::parse(result);
-      secureFileContent = json;
-    } catch (nlohmann::json::parse_error& error) {
-      return std::tuple<bool, std::string>(false, "JSON parse failed.");
-    }
-  }
-  label = name;
+  initialized = true;
   return std::tuple<bool, std::string>(true, "Success.");
 }
 
 // Check if a key exists in the secure storage.
 bool has(std::string key) {
-  return secureFileContent.contains(key);
+  return read(key).has_value();
 }
 
 // Retrieve the value associated with a key from the secure storage.
 tl::optional<std::string> read(std::string key) {
-  return has(key) ? tl::optional<std::string>(secureFileContent[key])
-                  : tl::optional<std::string>();
+  GError* error = NULL;
+  gchar* value = secret_password_lookup_sync(SECRET_SCHEMA, SECRET_COLLECTION_DEFAULT, &error, "key", key, NULL);
+  if (error != NULL) {
+    std::cerr << (error->message);
+    g_error_free(error);
+  }
+  tl::optional<std::string> result == NULL ? tl::optional<std::string>() : td::optional<std::string>(std::string(value));
+  secret_password_free(value);
+  return result;
 }
 
 // Store a key-value pair in the secure storage.
 std::tuple<bool, std::string> write(std::string key, std::string value) {
-  secureFileContent[key] = value;
-  return save();
+  GError* error = NULL;
+  secret_password_store_sync(SECRET_SCHEMA, SECRET_COLLECTION_DEFAULT, key.c_str(), value.c_str(), &error, "key", key, NULL);
+  return getReturnValue(error);
 }
 
 // Remove a key-value pair from the secure storage.
 std::tuple<bool, std::string> del(std::string key) {
-  secureFileContent.erase(key);
-  return save();
+  GError* error = NULL;
+  secret_password_clear_sync(SECRET_SCHEMA, NULL, &error, "key", key, NULL);
+  return getReturnValue(error);
 }
 
 // Clear all data from the secure storage.
 std::tuple<bool, std::string> clear() {
-  secureFileContent = nlohmann::json::object();
-  return save();
-}
-
-// Save the content to the keyring.
-std::tuple<bool, std::string> save() {
-  std::tuple<bool, std::string> warmupResult = warmupKeyring();
-  if (!std::get<0>(warmupResult)) {
-    return warmupResult;
-  }
-
-  const std::string output = secureFileContent.dump();
-  g_autoptr(GError) error = nullptr;
-  secret_password_storev_sync(
-    &schema, attributes.getGHashTable(), nullptr, label, output.c_str(), nullptr, &error
-  );
-
-  if (error) {
-    return std::tuple<bool, std::string>(false, error->message);
-  }
-
-  return std::tuple<bool, std::string>(true, "Success.");
+  GError* error = NULL;
+  secret_password_clear_sync(SECRET_SCHEMA, NULL, &error, NULL);
+  return getReturnValue(error);
 }
 
 // Ensures the plugin has been initialized.
 std::tuple<bool, std::string> ensureInitialized() {
-  if (label == nullptr) {
-    return std::tuple<bool, std::string>(false, "Please make sure you have initialized the plugin.");
+  if (initialized) {
+    return std::tuple<bool, std::string>(true, "Correctly initialized.");
   }
-  return std::tuple<bool, std::string>(true, "Correctly initialized.");;
+  return std::tuple<bool, std::string>(false, "Please make sure you have initialized the plugin.");
 }
 
 // Search with schemas fails in cold keyrings.
@@ -216,23 +190,36 @@ std::tuple<bool, std::string> ensureInitialized() {
 // a workaround as implemented in http://crbug.com/660005. Reason being that with the lookup
 // approach we can't distinguish whether the keyring was actually unlocked or whether the user
 // cancelled the password prompt.
-std::tuple<bool, std::string> warmupKeyring() {
-  g_autoptr(GError) error = nullptr;
-
-  FHashTable attributes;
-  attributes.insert("explanation",
-                    "Because of quirks in the gnome libsecret API, "
-                    "flutter_secret_storage needs to store a dummy entry to guarantee that "
-                    "this keyring was properly unlocked. More details at http://crbug.com/660005.");
-
-  const gchar* dummy_label = "FlutterSecureStorage Control";
+//
+// Kudos to FlutterSecureStorage for this one.
+std::tuple<bool, std::string> warmupKeyring(const gchar* name) {
+  GError* error = nullptr;
 
   // Store a dummy entry without `schema`.
   bool success = secret_password_storev_sync(
-    NULL, attributes.getGHashTable(), nullptr, dummy_label, "{}", nullptr, &error
+    NULL,
+    "explanation",
+    "Because of quirks in the gnome libsecret API, "
+    "SimpleSecureStorage needs to store a dummy entry to guarantee that "
+    "this keyring was properly unlocked. More details at http://crbug.com/660005.",
+    NULL,
+    name + " Control",
+    "The meaning of life.",
+    NULL,
+    &error
   );
 
-  return std::tuple<bool, std::string>(success, success ? "Success." : "Failed to unlock the keyring.");
+  return getReturnValue(error);
+}
+
+// Returns the return value associated to the given error pointer.
+std::tuple<bool, std::string> getReturnValue(GError* error) {
+  if (error != NULL) {
+    std::string message = error->message;
+    g_error_free(error);
+    return std::tuple<bool, std::string>(false, message);
+  }
+  return std::tuple<bool, std::string>(true, "Success.");
 }
 
 static void simple_secure_storage_linux_plugin_dispose(GObject* object) {
