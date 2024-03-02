@@ -24,12 +24,16 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   /// Will be triggered when [close] is being called.
   Function? _onClosed;
 
+  /// The prefix to prepend to keys.
+  late String _prefix;
+
   /// Registers this implementation.
   static void registerWith(Registrar registrar) => SimpleSecureStoragePlatform.instance = SimpleSecureStorageWeb();
 
   @override
   Future<void> initialize(InitializationOptions options) async {
     WebInitializationOptions webOptions = options is WebInitializationOptions ? options : WebInitializationOptions.from(options);
+    _prefix = options.prefix ?? '';
     if (_factory == null) {
       _factory = EncryptedDatabaseFactory(
         databaseFactory: databaseFactoryWeb,
@@ -48,7 +52,7 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   @override
   Future<bool> has(String key) async {
     _ensureInitialized();
-    bool result = (await _store!.record(key).get(_database!)) != null;
+    bool result = (await _store!.record(_prefix + key).get(_database!)) != null;
     _throttleAutoClose();
     return result;
   }
@@ -56,7 +60,7 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   @override
   Future<String?> read(String key) async {
     _ensureInitialized();
-    String? result = (await _store!.record(key).get(_database!))?.toString();
+    String? result = (await _store!.record(_prefix + key).get(_database!))?.toString();
     _throttleAutoClose();
     return result;
   }
@@ -67,7 +71,7 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
     List<RecordSnapshot<String, Object?>> records = await _store!.find(_database!);
     Map<String, String> result = {
       for (RecordSnapshot<String, Object?> record in records)
-        if (record.value != null) record.key: record.value.toString()
+        if (record.value != null) record.key.substring(_prefix.length): record.value.toString()
     };
     _throttleAutoClose();
     return result;
@@ -76,14 +80,14 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   @override
   Future<void> write(String key, String value) async {
     _ensureInitialized();
-    await _store!.record(key).put(_database!, value);
+    await _store!.record(_prefix + key).put(_database!, value);
     _throttleAutoClose();
   }
 
   @override
   Future<void> delete(String key) async {
     _ensureInitialized();
-    await _store!.record(key).delete(_database!);
+    await _store!.record(_prefix + key).delete(_database!);
     _throttleAutoClose();
   }
 
