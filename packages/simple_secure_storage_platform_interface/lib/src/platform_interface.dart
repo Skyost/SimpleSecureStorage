@@ -1,4 +1,5 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:simple_secure_storage_platform_interface/src/initialization_options.dart';
 import 'package:simple_secure_storage_platform_interface/src/method_channel.dart';
 
 /// The platform interface to interact with.
@@ -49,24 +50,4 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
 
   /// Clears all values.
   Future<void> clear();
-}
-
-/// Allows to configure the plugin initialization.
-class InitializationOptions {
-  /// Your app name.
-  final String? appName;
-
-  /// Your app namespace.
-  final String? namespace;
-
-  /// Prefix to automatically prepend to keys.
-  /// This avoids conflicts on some platforms.
-  final String? prefix;
-
-  /// Creates a new initialization options instance.
-  const InitializationOptions({
-    this.appName,
-    this.namespace,
-    this.prefix = 'sss_',
-  });
 }

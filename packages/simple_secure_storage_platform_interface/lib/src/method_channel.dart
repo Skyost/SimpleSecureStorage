@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:simple_secure_storage_platform_interface/src/initialization_options.dart';
 import 'package:simple_secure_storage_platform_interface/src/platform_interface.dart';
 
 /// An implementation of [SimpleSecureStoragePlatform] that uses method channels.
