@@ -132,9 +132,8 @@ await SimpleSecureStorage.delete('key');
 await SimpleSecureStorage.clear();
 ```
 
-In the previous snippet, everything is read "on demand". Although in most implementations your data is
-already cached in the memory on the platform side, you may want to access it without always having to use
-`await`. To do so, use the class `CachedSimpleSecureStorage`.
+In the previous snippet, everything is being read "on demand". You may want to access your data
+without always having to write `await`. To do so, use the class `CachedSimpleSecureStorage`.
 It behaves exactly like the snippet above, except that you don't have to call `await SimpleSecureStorage.initialize()`,
 but `await CachedSimpleSecureStorage.getInstance()`.
 
