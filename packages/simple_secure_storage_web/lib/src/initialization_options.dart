@@ -8,12 +8,21 @@ class WebInitializationOptions extends InitializationOptions {
   /// The encryption salt.
   final String? _encryptionSalt;
 
+  /// Timeout before auto closing the database.
+  /// You'll have to call [SimpleSecureStorageWeb.initialize] after that.
+  final Duration? autoCloseDatabaseTimeout;
+
+  /// Will be called on database close.
+  final Function()? onDatabaseClosed;
+
   /// Creates a new web initialization options instance.
   WebInitializationOptions({
     super.appName,
     super.namespace,
     String? keyPassword,
     String? encryptionSalt,
+    this.autoCloseDatabaseTimeout,
+    this.onDatabaseClosed,
   })  : _keyPassword = keyPassword,
         _encryptionSalt = encryptionSalt;
 
