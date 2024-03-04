@@ -139,8 +139,8 @@ but `await CachedSimpleSecureStorage.getInstance()`.
 
 If you want a more complete example, feel free to check and run
 [this one](https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage/example),
-which available on Github. Note that, using the example app on Darwin platforms (iOS & macOS),
-storage is not persistent because it's only configured to run locally in sandbox mode.
+which available on Github. Note that, to run the example app on Darwin platforms (iOS & macOS),
+you need to configure the development team in the project settings.
 
 ## Contributions
 
