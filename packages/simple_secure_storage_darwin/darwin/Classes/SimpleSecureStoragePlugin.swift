@@ -10,9 +10,9 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     var query: [AnyHashable: Any] = [:]
 
     /// Whether the plugin has been initialized.
-    bool initialized = false
+    var initialized: Bool = false
 
-    public override init() {
+    override public init() {
         super.init()
         query = [
             kSecClass as String: kSecClassGenericPassword
@@ -46,20 +46,20 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
                 return
             }
             let readResult = read(arguments["key"] as! String)
-            if readResult.1 == noErr {
-                result(readResult.2)
+            if readResult.0 == noErr {
+                result(readResult.1)
             } else {
-                result(FlutterError.init(code: "read_error", message: "Error while reading.", details: status))
+                result(FlutterError(code: "read_error", message: "Error while reading.", details: readResult.0))
             }
         case "list":
             if !ensureInitialized(result) {
                 return
             }
             let listResult = list()
-            if listResult.1 == noErr {
-                result(listResult.2)
+            if listResult.0 == noErr {
+                result(listResult.1)
             } else {
-                result(FlutterError.init(code: "list_error", message: "Error while listing.", details: status))
+                result(FlutterError(code: "list_error", message: "Error while listing.", details: listResult.0))
             }
         case "write":
             if !ensureInitialized(result) {
@@ -69,7 +69,7 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
             if status == noErr {
                 result(true)
             } else {
-                result(FlutterError.init(code: "write_error", message: "Error while writing data.", details: status))
+                result(FlutterError(code: "write_error", message: "Error while writing data.", details: status))
             }
         case "delete":
             if !ensureInitialized(result) {
@@ -79,7 +79,7 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
             if status == noErr {
                 result(true)
             } else {
-                result(FlutterError.init(code: "delete_error", message: "Error while deleting data.", details: status))
+                result(FlutterError(code: "delete_error", message: "Error while deleting data.", details: status))
             }
         case "clear":
             if !ensureInitialized(result) {
@@ -89,82 +89,91 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
             if status == noErr {
                 result(true)
             } else {
-                result(FlutterError.init(code: "clear_error", message: "Error while clearing data.", details: status))
+                result(FlutterError(code: "clear_error", message: "Error while clearing data.", details: status))
             }
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
     /// Initializes the plugin.
     func initialize(_ appName: String) {
         // query[kSecAttrAccessGroup as String] = arguments["namespace"] == nil ? "fr.skyost.simple_secure_storage" : (arguments["namespace"] as! String)
         query[kSecAttrService as String] = appName
         initialized = true
     }
-    
+
     /// Returns whether there is a value associated with the given key.
     func has(_ key: String) -> Bool {
-        return read(key) != nil
+        return read(key).1 != nil
     }
 
     /// Returns the value associated with the given key.
-    func read(_ key: String) -> (OSError, String?) {
-        var result = get(key)
+    func read(_ key: String) -> (OSStatus, String?) {
+        let result = get(key)
         return result.1.isEmpty ? (result.0, nil) : (result.0, result.1.values.first!)
     }
 
     /// Returns all values.
-    func list() -> (OSError, [String: String]) {
+    func list() -> (OSStatus, [String: String]) {
         return get()
     }
 
     /// Returns the values associated with the given key, or all values if omitted.
-    func get(_ key: String? = nil) -> (OSError, [String: String]) {
-      var search = query
-      search[kSecMatchLimit] = kSecMatchLimitAll
-      search[kSecReturnAttributes] = kCFBooleanTrue
-      if key != nil {
-          search[kSecAttrAccount] = key
-      }
+    func get(_ key: String? = nil) -> (OSStatus, [String: String]) {
+        var search = query
+        search[kSecMatchLimit] = kSecMatchLimitAll
+        search[kSecReturnAttributes] = kCFBooleanTrue
+        if key != nil {
+            search[kSecAttrAccount] = key
+        }
+        
+        var values: [String: String] = [:]
+        var status = SecItemCopyMatching(search as CFDictionary, nil)
+        if status == errSecItemNotFound {
+            return (noErr, values)
+        }
+        
+        search[kSecReturnData] = kCFBooleanTrue
+        // search[kSecReturnRef] = kCFBooleanTrue
 
-      var values: [String: String] = [:]
-      var result: AnyObject?
-      let status = SecItemCopyMatching(search as CFDictionary, &result)
-      if status == errSecItemNotFound {
-          return (noErr, values)
-      }
-      if status != noErr {
-          return (status, values)
-      }
+        var result: AnyObject?
+        status = SecItemCopyMatching(search as CFDictionary, &result)
+        if status != noErr {
+            return (status, values)
+        }
 
-      if let items = result as? [[NSString: Any?]] {
-          for item in items {
-            if let keyData = item[kSecAttrAccount] as? Data, let key = String(data: keyData, encoding: .utf8), let valueData = item[kSecValueData] as? Data, let value = String(data: valueData, encoding: .utf8){
-                values[key] = value
+        if let items = result as? [[NSString: Any?]] {
+            for item in items {
+                if let key = item[kSecAttrAccount] as? String, let valueData = item[kSecValueData] as? Data, let value = String(data: valueData, encoding: .utf8) {
+                    values[key] = value
+                }
             }
-          }
-      }
-      return (noErr, values)
+        }
+        return (noErr, values)
     }
 
     /// Puts the given value for the given key.
     func write(_ key: String, _ value: String) -> OSStatus {
-        values[key] = value
-        
         var search = query
         search[kSecAttrAccount] = key
         search[kSecMatchLimit] = kSecMatchLimitOne
 
         var status: OSStatus
-
         if SecItemCopyMatching(search as CFDictionary, nil) == noErr {
             search[kSecMatchLimit] = nil
-            let update: [AnyHashable: Any] = [kSecValueData: value.data(using: .utf8)!]
+            
+            var update: [AnyHashable: Any] = [kSecValueData: value.data(using: .utf8)!]
+            if #available(macOS 10.15, *) {
+                update[kSecUseDataProtectionKeychain] = kCFBooleanTrue
+            }
             status = SecItemUpdate(search as CFDictionary, update as CFDictionary)
         } else {
             search[kSecValueData] = value.data(using: .utf8)!
             search[kSecMatchLimit] = nil
+            if #available(macOS 10.15, *) {
+                search[kSecUseDataProtectionKeychain] = kCFBooleanTrue
+            }
             status = SecItemAdd(search as CFDictionary, nil)
         }
 
@@ -175,21 +184,23 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     func delete(_ key: String) -> OSStatus {
         var search = query
         search[kSecAttrAccount] = key
-        return SecItemDelete(search as CFDictionary)
+        let status = SecItemDelete(search as CFDictionary)
+        return status == noErr || status == errSecItemNotFound ? noErr : status
     }
 
     /// Clears everything.
     func clear() -> OSStatus {
         let search = query
-        return SecItemDelete(search as CFDictionary)
+        let status = SecItemDelete(search as CFDictionary)
+        return status == noErr || status == errSecItemNotFound ? noErr : status
     }
-    
+
     /// Ensures that the plugin has been initialized.
     func ensureInitialized(_ result: FlutterResult) -> Bool {
         if initialized {
-            return true;
+            return true
         }
-        result(FlutterError.init(code: "not_initialized", message: "Please make sure you have initialized the plugin."))
+        result(FlutterError(code: "not_initialized", message: "Please make sure you have initialized the plugin.", details: nil))
         return false
     }
 }
