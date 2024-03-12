@@ -3,7 +3,7 @@ description: Windows implementation of the Simple Secure Storage plugin.
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_windows
 issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
-version: 0.2.0
+version: 0.3.0
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
