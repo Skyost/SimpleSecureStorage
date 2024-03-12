@@ -36,9 +36,8 @@ Simple Secure Storage uses :
 which is supported since _iOS 2.0_ and _macOS 10.6_.
 * [`EncryptedSharedPreferences`](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
 on Android, which supports a minimum SDK version of, at least, _21_.
-* [Crypt32](https://learn.microsoft.com/fr-fr/windows/win32/api/dpapi/) on Windows, which seems to
+* [`wincred.h`](https://learn.microsoft.com/en-us/windows/win32/api/wincred/) on Windows, which seems to
 be available since _Windows XP_.
-Note that, on Windows, everything is stored inside a file located at `%APPDATA%/Local/appName/namespace.dat`.
 * [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux. Therefore, you need a _secret service_ (`gnome_keyring`
 is commonly installed).
 * [`sembast_web`](https://pub.dev/packages/sembast_web) and [`webcrypto`](https://pub.dev/packages/webcrypto)
@@ -107,8 +106,8 @@ sudo apt install -y libsecret-1-dev
 Here's a simple example to get started.
 
 ```dart
-// Initialize the plugin before using.
-// Typically done in your `main()` method.
+// Initialize the plugin before using. Typically done in your `main()` method.
+// Please don't forget to provide your namespace and your app name.
 if (kIsWeb) {
   // To secure your data on Flutter web, we have to encrypt it using a password and a salt.
   await SimpleSecureStorage.initialize(WebInitializationOptions(keyPassword: 'password', encryptionSalt: 'salt'));

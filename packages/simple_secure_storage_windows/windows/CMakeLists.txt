@@ -22,14 +22,6 @@ list(APPEND PLUGIN_SOURCES
   "simple_secure_storage_windows_plugin.h"
 )
 
-# Fetch nlohmann/json.hpp using FetchContent.
-include(FetchContent)
-FetchContent_Declare(
-        nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-)
-FetchContent_MakeAvailable(nlohmann_json)
-
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 add_library(${PLUGIN_NAME} SHARED
@@ -55,8 +47,8 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 # dependencies here.
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE "Crypt32.lib")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin nlohmann_json::nlohmann_json)
+target_link_libraries(${PLUGIN_NAME} PRIVATE "Advapi32.lib")
+target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an

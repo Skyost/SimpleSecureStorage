@@ -1,20 +1,13 @@
 #include "simple_secure_storage_windows_plugin.h"
 
-// This must be included before many other Windows headers.
-#include <windows.h>
-
-#include <flutter/method_channel.h>
-#include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
 #include <filesystem>
 #include <fstream>
-#include <nlohmann/json.hpp>
 
 #include "utilities.h"
 
 using namespace flutter;
-using json = nlohmann::json;
 namespace fs = std::filesystem;
 
 namespace simple_secure_storage {
@@ -39,9 +32,7 @@ namespace simple_secure_storage {
     registrar->AddPlugin(std::move(plugin));
   }
 
-  SimpleSecureStorageWindowsPlugin::SimpleSecureStorageWindowsPlugin() {
-    secureFileContent = json::object();
-  }
+  SimpleSecureStorageWindowsPlugin::SimpleSecureStorageWindowsPlugin() {}
 
   SimpleSecureStorageWindowsPlugin::~SimpleSecureStorageWindowsPlugin() {}
 
@@ -52,27 +43,9 @@ namespace simple_secure_storage {
     const auto &method = methodCall.method_name();
     const auto *arguments = std::get_if<EncodableMap>(methodCall.arguments());
     if (method.compare("initialize") == 0) {
-      auto directoryName = arguments->find(EncodableValue("appName"));
-      auto fileName = arguments->find(EncodableValue("namespace"));
-      fs::path directoryPath =
-        fs::path(getUserDataDirectory()) /
-        fs::path(directoryName == arguments->end() ? L"Flutter" : toUtf16(std::get<std::string>(directoryName->second)));
-      if (!fs::exists(directoryPath) || !fs::is_directory(directoryPath)) {
-        fs::create_directory(directoryPath);
-      }
-      fs::path filePath = directoryPath /
-                          fs::path(
-                            (fileName == arguments->end()
-                               ? L"fr.skyost.simple_secure_storage"
-                               : toUtf16(std::get<std::string>(fileName->second))) +
-                            L".dat"
-                          );
-      auto callResult = initialize(filePath.string());
-      if (std::get<0>(callResult) == 0) {
-        result->Success(flutter::EncodableValue(true));
-      } else {
-        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
-      }
+      auto _appNamespace = std::get<std::string>(arguments->find(EncodableValue("namespace"))->second);
+      initialize(_appNamespace);
+      result->Success(flutter::EncodableValue(true));
     } else if (method.compare("has") == 0) {
       if (!ensureInitialized(result)) {
         return;
@@ -84,11 +57,12 @@ namespace simple_secure_storage {
       if (!ensureInitialized(result)) {
         return;
       }
-      auto map = EncodableMap{};
-      for (auto& [key, value] : secureFileContent.items()) {
-        map.insert({EncodableValue(std::string(key)), EncodableValue(std::string(value))});
+      auto map = list();
+      auto encodableMap = EncodableMap{};
+      for (auto &[key, value] : map) {
+        encodableMap.insert({EncodableValue(std::string(key)), EncodableValue(std::string(value))});
       }
-      result->Success(EncodableValue(map));
+      result->Success(EncodableValue(encodableMap));
     } else if (method.compare("read") == 0) {
       if (!ensureInitialized(result)) {
         return;
@@ -113,7 +87,7 @@ namespace simple_secure_storage {
       if (std::get<0>(callResult) == 0) {
         result->Success(flutter::EncodableValue(true));
       } else {
-        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+        result->Error("write_error", std::get<1>(callResult), std::get<0>(callResult));
       }
     } else if (method.compare("delete") == 0) {
       if (!ensureInitialized(result)) {
@@ -125,7 +99,7 @@ namespace simple_secure_storage {
       if (std::get<0>(callResult) == 0) {
         result->Success(flutter::EncodableValue(true));
       } else {
-        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+        result->Error("delete_error", std::get<1>(callResult), std::get<0>(callResult));
       }
     } else if (method.compare("clear") == 0) {
       if (!ensureInitialized(result)) {
@@ -135,84 +109,137 @@ namespace simple_secure_storage {
       if (std::get<0>(callResult) == 0) {
         result->Success(flutter::EncodableValue(true));
       } else {
-        result->Error("initialization_error", std::get<1>(callResult), std::get<0>(callResult));
+        result->Error("clear_error", std::get<1>(callResult), std::get<0>(callResult));
       }
     } else {
       result->NotImplemented();
     }
   }
 
-  // Initializes the plugin and load the encrypted file content.
-  std::tuple<int, std::string> SimpleSecureStorageWindowsPlugin::initialize(
-    std::string filePath
-  ) {
-    secureFilePath = toUtf16(filePath);
-    if (!fs::exists(filePath)) {
-      return std::tuple<int, std::string>(0, "File doesn't exists.");
-    }
-    std::tuple<int, std::string> result = readEncryptedData(filePath);
-    if (std::get<0>(result) != 0) {
-      return result;
-    }
-    try {
-      secureFileContent = json::parse(std::get<1>(result));
-    } catch (json::parse_error& error) {
-      (void)error;
-      return std::tuple<int, std::string>(1, "JSON parse error.");
-    }
-    return std::tuple<int, std::string>(0, "Success.");
+  // Initializes the plugin .
+  void SimpleSecureStorageWindowsPlugin::initialize(std::string _appNamespace) {
+    this->appNamespace = _appNamespace;
   }
 
   // Check if a key exists in the secure storage.
-  bool SimpleSecureStorageWindowsPlugin::has(const std::string &key) const {
-    return secureFileContent.contains(key);
+  bool SimpleSecureStorageWindowsPlugin::has(const std::string &key) {
+    return read(key).has_value();
   }
 
   // Retrieve the value associated with a key from the secure storage.
   std::optional<std::string> SimpleSecureStorageWindowsPlugin::read(const std::string &key) {
-    return has(key) ? std::optional<std::string>(secureFileContent[key])
-                    : std::optional<std::string>();
+    std::wstring targetName = getTargetName(key);
+    PCREDENTIAL credential;
+    BOOL result = CredRead(targetName.c_str(), CRED_TYPE_GENERIC, 0, &credential);
+    if (!result) {
+      auto test = getReturnTuple(result);
+      return std::optional<std::string>();
+    }
+    std::string value = std::string((char*)credential->CredentialBlob);
+    CredFree(credential);
+    return value;
+  }
+
+  // Lists all key / value pairs.
+  std::map<std::string, std::string> SimpleSecureStorageWindowsPlugin::list() {
+    std::wstring targetName = getTargetName("*");
+    DWORD count;
+    PCREDENTIAL *credentials;
+    BOOL result = CredEnumerate(targetName.c_str(), 0, &count, &credentials);
+    std::map<std::string, std::string> map = std::map<std::string, std::string>();
+    if (!result) {
+      return map;
+    }
+    for (DWORD i = 0; i < count; ++i) {
+      auto credential = credentials[i];
+      std::string key = toUtf8(credential->UserName);
+      std::string value = std::string((char *)credential->CredentialBlob);
+      map[key] = value;
+    }
+    CredFree(credentials);
+    return map;
   }
 
   // Store a key-value pair in the secure storage.
   std::tuple<int, std::string> SimpleSecureStorageWindowsPlugin::write(
     const std::string &key, const std::string &value
   ) {
-    secureFileContent[key] = value;
-    return save();
+    auto targetName = getTargetName(key);
+    auto userName = toUtf16(key);
+
+    auto credentialValue = value.c_str();
+
+    CREDENTIAL credential = {};
+    credential.Flags = 0;
+    credential.Type = CRED_TYPE_GENERIC;
+    credential.TargetName = (LPWSTR)targetName.c_str();
+    credential.UserName = (LPWSTR)userName.c_str();
+    credential.CredentialBlobSize = (DWORD)(1 + strlen(credentialValue));
+    credential.CredentialBlob = (LPBYTE)credentialValue;
+    credential.Persist = CRED_PERSIST_LOCAL_MACHINE;
+
+    BOOL result = CredWrite(&credential, 0);
+    return getReturnTuple(result);
   }
 
   // Remove a key-value pair from the secure storage.
   std::tuple<int, std::string> SimpleSecureStorageWindowsPlugin::remove(
     const std::string &key
   ) {
-    secureFileContent.erase(key);
-    return save();
+    std::wstring targetName = getTargetName(key);
+    BOOL result = CredDelete(targetName.c_str(), CRED_TYPE_GENERIC, 0);
+    return getReturnTuple(result);
   }
 
   // Clear all data from the secure storage.
   std::tuple<int, std::string> SimpleSecureStorageWindowsPlugin::clear() {
-    secureFileContent = json::object();
-    return save();
+    std::wstring targetName = getTargetName("*");
+    DWORD count;
+    PCREDENTIAL *credentials;
+    BOOL result = CredEnumerate(targetName.c_str(), 0, &count, &credentials);
+    if (!result) {
+      return getReturnTuple(result);
+    }
+    for (DWORD i = 0; i < count; ++i) {
+      auto credential = credentials[i];
+      result = CredDelete(credential->TargetName, credential->Type, 0);
+      if (!result) {
+        return getReturnTuple(result);
+      }
+    }
+    CredFree(credentials);
+    return getReturnTuple(result);
   }
 
-  // Encrypts and save the content to the file.
-  std::tuple<int, std::string> SimpleSecureStorageWindowsPlugin::save() const {
-    if (secureFileContent.empty() && fs::exists(secureFilePath.value())) {
-      fs::remove(secureFilePath.value());
-      return std::tuple<int, std::string>(0, "Deleted with success.");
+  // Returns the target name associated with the specified key.
+  std::wstring SimpleSecureStorageWindowsPlugin::getTargetName(const std::string &key) {
+    return toUtf16(appNamespace.value() + "_" + key);
+  }
+
+  // Allows to unify the return object between methods.
+  std::tuple<int, std::string> SimpleSecureStorageWindowsPlugin::getReturnTuple(bool result) {
+    if (result) {
+      return std::tuple<int, std::string>(0, "Success.");
+    } else {
+      DWORD error = GetLastError();
+      if (error == ERROR_NOT_FOUND) {
+        return std::tuple<int, std::string>(0, "Operation done with success since the specified key has not been found.");
+      }
+      LPWSTR errorMessageBuffer = nullptr;
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&errorMessageBuffer, 0, nullptr);
+      if (errorMessageBuffer != nullptr) {
+        std::string errorMessage = toUtf8(std::wstring(errorMessageBuffer));
+        LocalFree(errorMessageBuffer);
+        return std::tuple<int, std::string>(error, errorMessage);
+      }
+      return std::tuple<int, std::string>(error, "An error occured.");
     }
-    return writeEncryptedData(secureFilePath.value(), secureFileContent.dump());
   }
 
   // Ensures the plugin has been initialized.
-  bool SimpleSecureStorageWindowsPlugin::ensureInitialized(
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> &result
-  ) {
-    if (!secureFilePath.has_value()) {
-      result->Error("file_is_null",
-                    "The secure file path is null. Make sure you have "
-                    "initialized the plugin.");
+  bool SimpleSecureStorageWindowsPlugin::ensureInitialized(std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> & result) {
+    if (!appNamespace.has_value()) {
+      result->Error("namespace_is_null", "Please make sure you have initialized the plugin.");
       return false;
     }
     return true;
