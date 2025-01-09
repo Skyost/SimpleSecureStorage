@@ -30,18 +30,20 @@ class EncryptedDatabaseFactory implements DatabaseFactory {
   });
 
   @override
-  Future<void> deleteDatabase(String path) => databaseFactory.deleteDatabase(path);
-
-  @override
-  bool get hasStorage => databaseFactory.hasStorage;
-
-  /// To use with codec, null
-  @override
   Future<Database> openDatabase(String path, {int? version, OnVersionChangedFunction? onVersionChanged, DatabaseMode? mode, SembastCodec? codec}) async {
     assert(codec == null);
     codec ??= (await _getEncryptSembastCodec(password: password, salt: salt));
     return databaseFactory.openDatabase(path, version: version, onVersionChanged: onVersionChanged, mode: mode, codec: this.codec);
   }
+
+  @override
+  Future<bool> databaseExists(String path) => databaseFactory.databaseExists(path);
+
+  @override
+  Future<void> deleteDatabase(String path) => databaseFactory.deleteDatabase(path);
+
+  @override
+  bool get hasStorage => databaseFactory.hasStorage;
 
   /// Create a codec to use to open a database with encrypted stored data.
   ///
