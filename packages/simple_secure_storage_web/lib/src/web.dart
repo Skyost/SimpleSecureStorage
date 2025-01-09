@@ -1,7 +1,5 @@
-// ignore: avoid_web_libraries_in_flutter
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:just_throttle_it/just_throttle_it.dart';
-import 'package:sembast/sembast.dart';
 import 'package:sembast_web/sembast_web.dart';
 import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 import 'package:simple_secure_storage_web/src/crypto.dart';

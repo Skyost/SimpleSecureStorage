@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-// ignore: implementation_imports
-import 'package:sembast/src/api/v2/sembast.dart';
+import 'package:sembast/sembast.dart';
 import 'package:webcrypto/webcrypto.dart';
 
 /// Wrap a factory to always use the codec
