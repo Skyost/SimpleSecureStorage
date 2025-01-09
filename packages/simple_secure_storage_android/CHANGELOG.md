@@ -1,3 +1,7 @@
+## 0.2.1+1
+
+ - Update a dependency to the latest release.
+
 ## 0.2.1
 
  - **REFACTOR**(android): Removed `package` entry from `AndroidManifest.xml`. ([4ce6c937](https://github.com/Skyost/SimpleSecureStorage/commit/4ce6c9371f34cb513951687d826d7aafadff96b4))
