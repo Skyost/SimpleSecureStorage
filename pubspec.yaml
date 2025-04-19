@@ -3,6 +3,7 @@ publish_to: none
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
+  flutter: '>=3.29.0'
 
 workspace:
   - packages/simple_secure_storage
