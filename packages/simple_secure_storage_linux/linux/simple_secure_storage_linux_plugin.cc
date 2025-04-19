@@ -227,19 +227,18 @@ std::tuple<bool, std::string> warmupKeyring(const gchar* name) {
   std::string key = std::string(name) + " Control";
 
   // Store a dummy entry without `schema`.
-  secret_password_store_sync(
+  GHashTable *hash_table = g_hash_table_new_full(g_str_hash, nullptr, g_free, g_free);
+  g_hash_table_insert(hash_table, (void *)g_strdup("explanation"), (void *)g_strdup("Because of quirks in the gnome libsecret API, SimpleSecureStorage needs to store a dummy entry to guarantee that this keyring was properly unlocked. More details at http://crbug.com/660005."));
+  secret_password_storev_sync(
     NULL,
-    SECRET_COLLECTION_DEFAULT,
+    hash_table,
+    nullptr,
     key.c_str(),
-    "The meaning of life.",
-    NULL,
-    &error,
-    "explanation",
-    "Because of quirks in the gnome libsecret API, "
-    "SimpleSecureStorage needs to store a dummy entry to guarantee that "
-    "this keyring was properly unlocked. More details at http://crbug.com/660005.",
-    NULL
+    "The meaning of life",
+    nullptr,
+    &error
   );
+  g_hash_table_destroy(hash_table);
 
   return getReturnValue(error);
 }
