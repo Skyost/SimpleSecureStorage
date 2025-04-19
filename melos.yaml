@@ -2,7 +2,7 @@ name: simple_secure_storage
 repository: https://github.com/Skyost/SimpleSecureStorage
 
 packages:
-  - packages/*
+  - packages/**
   - packages/simple_secure_storage/example
 
 command:

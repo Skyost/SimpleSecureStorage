@@ -1,7 +1,17 @@
 name: simple_secure_storage_workspace
+publish_to: none
 
 environment:
-  sdk: ">=3.3.0 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
+
+workspace:
+  - packages/simple_secure_storage
+  - packages/simple_secure_storage_android
+  - packages/simple_secure_storage_darwin
+  - packages/simple_secure_storage_linux
+  - packages/simple_secure_storage_platform_interface
+  - packages/simple_secure_storage_web
+  - packages/simple_secure_storage_windows
 
 dev_dependencies:
-  melos: ^6.3.0
+  melos: ^7.0.0-dev.8
