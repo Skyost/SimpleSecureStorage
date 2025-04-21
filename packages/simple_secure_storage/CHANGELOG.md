@@ -1,3 +1,7 @@
+## 0.3.4
+
+ - **FIX**(linux): Now using a JSON map to store the key/values.
+
 ## 0.3.3
 
 ## 0.3.2

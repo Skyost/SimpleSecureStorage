@@ -1,3 +1,7 @@
+## 0.2.2
+
+ - **FIX**(linux): Now using a JSON map to store the key/values.
+
 ## 0.2.1
 
  - **FIX**(linux): Fixed a bug with `warmupKeyring`.
