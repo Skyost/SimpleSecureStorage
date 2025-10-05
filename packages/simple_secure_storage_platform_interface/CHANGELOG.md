@@ -1,3 +1,5 @@
+## 0.2.2
+
 ## 0.2.1
 
 - **CHORE**: Fixed lint analysis errors. ([d78cbcf0](https://github.com/Skyost/SimpleSecureStorage/commit/d78cbcf050680f74e43da2aa9a3064065f3b057d))

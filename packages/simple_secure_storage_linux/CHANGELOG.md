@@ -1,3 +1,7 @@
+## 0.2.3
+
+ - chore: Updated peer dependencies.
+
 ## 0.2.2
 
  - **FIX**(linux): Now using a JSON map to store the key/values.

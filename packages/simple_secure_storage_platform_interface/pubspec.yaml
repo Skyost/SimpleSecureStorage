@@ -3,7 +3,7 @@ description: Common platform interface for the Simple Secure Storage plugin.
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_platform_interface
 issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
-version: 0.2.1
+version: 0.2.2
 resolution: workspace
 
 environment:

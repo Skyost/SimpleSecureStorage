@@ -1,3 +1,5 @@
+## 0.2.2
+
 ## 0.2.1
 
 - **CHORE**(web): Updated `sembast`. ([acb08e3a](https://github.com/Skyost/SimpleSecureStorage/commit/acb08e3a0fb2a3bc359643142fb297d4e61a1fa1))
