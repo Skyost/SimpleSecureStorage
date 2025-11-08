@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-11-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`simple_secure_storage` - `v0.3.6`](#simple_secure_storage---v036)
+ - [`simple_secure_storage_android` - `v0.3.0`](#simple_secure_storage_android---v030)
+ - [`simple_secure_storage_linux` - `v0.2.4`](#simple_secure_storage_linux---v024)
+
+---
+
+#### `simple_secure_storage` - `v0.3.6`
+
+#### `simple_secure_storage_android` - `v0.3.0`
+
+#### `simple_secure_storage_linux` - `v0.2.4`
+
+
 ## 2025-10-05
 
 ### Changes
