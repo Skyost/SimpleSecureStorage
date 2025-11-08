@@ -2,14 +2,14 @@ group 'fr.skyost.simple_secure_storage_android'
 version '0.0.1'
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
+    ext.kotlin_version = '2.2.21'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.android.tools.build:gradle:8.13.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -29,15 +29,15 @@ android {
         namespace 'fr.skyost.simple_secure_storage'
     }
 
-    compileSdk 34
+    compileSdk 36
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_10
+        targetCompatibility JavaVersion.VERSION_1_10
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '10'
     }
 
     sourceSets {
@@ -68,5 +68,5 @@ android {
 }
 
 dependencies {
-    implementation "androidx.security:security-crypto:1.1.0-alpha06"
+    implementation("dev.spght:encryptedprefs-ktx:1.1.1")
 }

@@ -1,6 +1,6 @@
 ## 0.2.3
 
- - chore: Updated peer dependencies.
+- **CHORE** : Updated a dependency to the latest release.
 
 ## 0.2.2
 
@@ -12,9 +12,11 @@
 
 ## 0.2.0+1
 
- - Update a dependency to the latest release.
+ - **CHORE** : Updated a dependency to the latest release.
 
 ## 0.2.0
+
+- **CHORE** : Updated a dependency to the latest release.
 
 ## 0.1.1
 
