@@ -1,12 +1,18 @@
 ## 0.3.6
 
+- **CHORE** : Updated a dependency to the latest release.
+
 ## 0.3.5
+
+- **CHORE** : Updated a dependency to the latest release.
 
 ## 0.3.4
 
  - **FIX**(linux): Now using a JSON map to store the key/values.
 
 ## 0.3.3
+
+- **CHORE** : Updated a dependency to the latest release.
 
 ## 0.3.2
 

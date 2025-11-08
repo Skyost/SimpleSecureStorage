@@ -1,10 +1,14 @@
 ## 0.3.0
 
+- **CHORE** : Updated a dependency to the latest release.
+
 ## 0.2.2
+
+- **CHORE** : Updated a dependency to the latest release.
 
 ## 0.2.1+1
 
- - Update a dependency to the latest release.
+- **CHORE** : Updated a dependency to the latest release.
 
 ## 0.2.1
 
