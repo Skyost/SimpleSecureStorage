@@ -34,62 +34,91 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
         let arguments: [String: Any?] = call.arguments == nil ? [:] : (call.arguments as! [String: Any?])
         switch call.method {
         case "initialize":
-            initialize(arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String))
-            result(true)
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.initialize(arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String))
+                DispatchQueue.main.async {
+                    result(true)
+                }
+            }
         case "has":
             if !ensureInitialized(result) {
                 return
             }
-            result(has(arguments["key"] as! String))
+            DispatchQueue.global(qos: .userInitiated).async {
+                let hasResult = self.has(arguments["key"] as! String)
+                DispatchQueue.main.async {
+                    result(hasResult)
+                }
+            }
         case "read":
             if !ensureInitialized(result) {
                 return
             }
-            let readResult = read(arguments["key"] as! String)
-            if readResult.0 == noErr {
-                result(readResult.1)
-            } else {
-                result(FlutterError(code: "read_error", message: "Error while reading.", details: readResult.0))
+            DispatchQueue.global(qos: .userInitiated).async {
+                let readResult = self.read(arguments["key"] as! String)
+                DispatchQueue.main.async {
+                    if readResult.0 == noErr {
+                        result(readResult.1)
+                    } else {
+                        result(FlutterError(code: "read_error", message: "Error while reading.", details: readResult.0))
+                    }
+                }
             }
         case "list":
             if !ensureInitialized(result) {
                 return
             }
-            let listResult = list()
-            if listResult.0 == noErr {
-                result(listResult.1)
-            } else {
-                result(FlutterError(code: "list_error", message: "Error while listing.", details: listResult.0))
+            DispatchQueue.global(qos: .userInitiated).async {
+                let listResult = self.list()
+                DispatchQueue.main.async {
+                    if listResult.0 == noErr {
+                        result(listResult.1)
+                    } else {
+                        result(FlutterError(code: "list_error", message: "Error while listing.", details: listResult.0))
+                    }
+                }
             }
         case "write":
             if !ensureInitialized(result) {
                 return
             }
-            let status = write(arguments["key"] as! String, arguments["value"] as! String)
-            if status == noErr {
-                result(true)
-            } else {
-                result(FlutterError(code: "write_error", message: "Error while writing data.", details: status))
+            DispatchQueue.global(qos: .userInitiated).async {
+                let status = self.write(arguments["key"] as! String, arguments["value"] as! String)
+                DispatchQueue.main.async {
+                    if status == noErr {
+                        result(true)
+                    } else {
+                        result(FlutterError(code: "write_error", message: "Error while writing data.", details: status))
+                    }
+                }
             }
         case "delete":
             if !ensureInitialized(result) {
                 return
             }
-            let status = delete(arguments["key"] as! String)
-            if status == noErr {
-                result(true)
-            } else {
-                result(FlutterError(code: "delete_error", message: "Error while deleting data.", details: status))
+            DispatchQueue.global(qos: .userInitiated).async {
+                let status = self.delete(arguments["key"] as! String)
+                DispatchQueue.main.async {
+                    if status == noErr {
+                        result(true)
+                    } else {
+                        result(FlutterError(code: "delete_error", message: "Error while deleting data.", details: status))
+                    }
+                }
             }
         case "clear":
             if !ensureInitialized(result) {
                 return
             }
-            let status = clear()
-            if status == noErr {
-                result(true)
-            } else {
-                result(FlutterError(code: "clear_error", message: "Error while clearing data.", details: status))
+            DispatchQueue.global(qos: .userInitiated).async {
+                let status = self.clear()
+                DispatchQueue.main.async {
+                    if status == noErr {
+                        result(true)
+                    } else {
+                        result(FlutterError(code: "clear_error", message: "Error while clearing data.", details: status))
+                    }
+                }
             }
         default:
             result(FlutterMethodNotImplemented)
