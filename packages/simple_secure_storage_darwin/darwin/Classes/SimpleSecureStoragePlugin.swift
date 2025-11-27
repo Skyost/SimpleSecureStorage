@@ -34,65 +34,94 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
         let arguments: [String: Any?] = call.arguments == nil ? [:] : (call.arguments as! [String: Any?])
         switch call.method {
         case "initialize":
-            initialize(arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String))
-            result(true)
+            executeInBackground(result: result) {
+                self.initialize(arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String))
+                return true
+            }
         case "has":
             if !ensureInitialized(result) {
                 return
             }
-            result(has(arguments["key"] as! String))
+            executeInBackground(result: result) {
+                self.has(arguments["key"] as! String)
+            }
         case "read":
             if !ensureInitialized(result) {
                 return
             }
-            let readResult = read(arguments["key"] as! String)
-            if readResult.0 == noErr {
-                result(readResult.1)
-            } else {
-                result(FlutterError(code: "read_error", message: "Error while reading.", details: readResult.0))
+            executeInBackground(result: result) {
+                let readResult = self.read(arguments["key"] as! String)
+                if readResult.0 == noErr {
+                    return readResult.1
+                } else {
+                    return FlutterError(code: "read_error", message: "Error while reading.", details: readResult.0)
+                }
             }
         case "list":
             if !ensureInitialized(result) {
                 return
             }
-            let listResult = list()
-            if listResult.0 == noErr {
-                result(listResult.1)
-            } else {
-                result(FlutterError(code: "list_error", message: "Error while listing.", details: listResult.0))
+            executeInBackground(result: result) {
+                let listResult = self.list()
+                if listResult.0 == noErr {
+                    return listResult.1
+                } else {
+                    return FlutterError(code: "list_error", message: "Error while listing.", details: listResult.0)
+                }
             }
         case "write":
             if !ensureInitialized(result) {
                 return
             }
-            let status = write(arguments["key"] as! String, arguments["value"] as! String)
-            if status == noErr {
-                result(true)
-            } else {
-                result(FlutterError(code: "write_error", message: "Error while writing data.", details: status))
+            executeInBackground(result: result) {
+                let status = self.write(arguments["key"] as! String, arguments["value"] as! String)
+                if status == noErr {
+                    return true
+                } else {
+                    return FlutterError(code: "write_error", message: "Error while writing data.", details: status)
+                }
             }
         case "delete":
             if !ensureInitialized(result) {
                 return
             }
-            let status = delete(arguments["key"] as! String)
-            if status == noErr {
-                result(true)
-            } else {
-                result(FlutterError(code: "delete_error", message: "Error while deleting data.", details: status))
+            executeInBackground(result: result) {
+                let status = self.delete(arguments["key"] as! String)
+                if status == noErr {
+                    return true
+                } else {
+                    return FlutterError(code: "delete_error", message: "Error while deleting data.", details: status)
+                }
             }
         case "clear":
             if !ensureInitialized(result) {
                 return
             }
-            let status = clear()
-            if status == noErr {
-                result(true)
-            } else {
-                result(FlutterError(code: "clear_error", message: "Error while clearing data.", details: status))
+            executeInBackground(result: result) {
+                let status = self.clear()
+                if status == noErr {
+                    return true
+                } else {
+                    return FlutterError(code: "clear_error", message: "Error while clearing data.", details: status)
+                }
             }
         default:
             result(FlutterMethodNotImplemented)
+        }
+    }
+
+    /// Executes an operation in a background thread to prevent UI freezes.
+    /// Results are posted back to the main thread.
+    ///
+    /// - Parameters:
+    ///   - result: The FlutterResult to send back to Flutter.
+    ///   - operation: The operation to execute in background.
+    private func executeInBackground(result: @escaping FlutterResult, operation: @escaping () -> Any?) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let operationResult = operation()
+            DispatchQueue.main.async {
+                result(operationResult)
+            }
         }
     }
 
