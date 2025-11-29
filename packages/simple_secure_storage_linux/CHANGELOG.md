@@ -1,3 +1,5 @@
+## 0.2.5
+
 ## 0.2.4
 
 - **CHORE** : Updated a dependency to the latest release.

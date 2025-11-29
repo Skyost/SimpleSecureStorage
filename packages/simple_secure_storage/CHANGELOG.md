@@ -1,3 +1,7 @@
+## 0.3.7
+
+ - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
+
 ## 0.3.6
 
 - **CHORE** : Updated a dependency to the latest release.

@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-11-29
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`simple_secure_storage` - `v0.3.7`](#simple_secure_storage---v037)
+ - [`simple_secure_storage_android` - `v0.3.1`](#simple_secure_storage_android---v031)
+ - [`simple_secure_storage_darwin` - `v0.2.2`](#simple_secure_storage_darwin---v022)
+ - [`simple_secure_storage_platform_interface` - `v0.2.3`](#simple_secure_storage_platform_interface---v023)
+ - [`simple_secure_storage_linux` - `v0.2.5`](#simple_secure_storage_linux---v025)
+ - [`simple_secure_storage_web` - `v0.2.3`](#simple_secure_storage_web---v023)
+ - [`simple_secure_storage_windows` - `v0.3.2`](#simple_secure_storage_windows---v032)
+
+---
+
+#### `simple_secure_storage` - `v0.3.7`
+
+ - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
+
+#### `simple_secure_storage_android` - `v0.3.1`
+
+ - **FIX**: prevent ANR on Android and freezes on iOS with Flutter Thread Merge (3.29+).
+
+#### `simple_secure_storage_darwin` - `v0.2.2`
+
+ - **REFACTOR**(ios): extract executeInBackground helper to reduce code duplication.
+ - **FIX**: prevent ANR on Android and freezes on iOS with Flutter Thread Merge (3.29+).
+ - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
+
+#### `simple_secure_storage_platform_interface` - `v0.2.3`
+
+ - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
+
+#### `simple_secure_storage_linux` - `v0.2.5`
+
+#### `simple_secure_storage_web` - `v0.2.3`
+
+#### `simple_secure_storage_windows` - `v0.3.2`
+
+ - **CHORE** : Updated a dependency to the latest release.
+
+
 ## 2025-11-08
 
 ### Changes

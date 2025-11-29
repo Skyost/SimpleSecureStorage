@@ -1,3 +1,7 @@
+## 0.2.3
+
+ - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
+
 ## 0.2.2
 
 ## 0.2.1
