@@ -27,4 +27,4 @@ dependencies:
   sembast: ^3.8.5
   sembast_web: ^2.4.2
   simple_secure_storage_platform_interface: ^0.2.2
-  webcrypto: ^0.5.8
+  webcrypto: ^0.6.0
