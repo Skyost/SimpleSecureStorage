@@ -1,7 +1,7 @@
 ## 0.2.2
 
- - **REFACTOR**(ios): extract executeInBackground helper to reduce code duplication.
- - **FIX**: prevent ANR on Android and freezes on iOS with Flutter Thread Merge (3.29+).
+ - **REFACTOR**(ios): Extract `executeInBackground` helper to reduce code duplication.
+ - **FIX**: Prevent ANR on Android and freezes on iOS with Flutter Thread Merge (3.29+).
  - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
 
 ## 0.2.1

@@ -1,6 +1,10 @@
 ## 0.2.3
 
+- **CHORE**: Updated dependencies.
+
 ## 0.2.2
+
+- **CHORE**: Updated dependencies.
 
 ## 0.2.1
 
