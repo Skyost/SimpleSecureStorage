@@ -1,4 +1,5 @@
-import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
+/// Have access to a secure and multi-platform storage.
+/// By Skyost.
+library simple_secure_storage_darwin;
 
-/// Darwin implementation of SimpleSecureStorage.
-class SimpleSecureStorageDarwin extends MethodChannelSimpleSecureStorage {}
+export 'src/initialization_options.dart';

@@ -15,10 +15,7 @@ class MethodChannelSimpleSecureStorage extends SimpleSecureStoragePlatform {
     _prefix = options.prefix ?? '';
     await _methodChannel.invokeMethod(
       'initialize',
-      {
-        if (options.appName != null) 'appName': options.appName,
-        if (options.namespace != null) 'namespace': options.namespace,
-      },
+      options.toMap(),
     );
   }
 

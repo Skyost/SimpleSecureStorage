@@ -16,4 +16,10 @@ class InitializationOptions {
     this.namespace,
     this.prefix = 'sss_',
   });
+
+  /// Serializes the options to a map.
+  Map<String, dynamic> toMap() => {
+        if (appName != null) 'appName': appName,
+        if (namespace != null) 'namespace': namespace,
+      };
 }

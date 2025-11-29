@@ -9,6 +9,9 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     /// The query.
     var query: [AnyHashable: Any] = [:]
 
+    /// The accessibility.
+    var accessibility: CFString = kSecAttrAccessibleWhenUnlocked
+
     /// Whether the plugin has been initialized.
     var initialized: Bool = false
 
@@ -35,7 +38,7 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "initialize":
             executeInBackground(result: result) {
-                self.initialize(arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String))
+                self.initialize(arguments["appName"] == nil ? "Flutter" : (arguments["appName"] as! String), arguments["accessibility"] == nil ? "whenUnlocked" : (arguments["accessibility"] as! String))
                 return true
             }
         case "has":
@@ -126,9 +129,21 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
     }
 
     /// Initializes the plugin.
-    func initialize(_ appName: String) {
+    func initialize(_ appName: String, _ accessibility: String) {
         // query[kSecAttrAccessGroup as String] = arguments["namespace"] == nil ? "fr.skyost.simple_secure_storage" : (arguments["namespace"] as! String)
         query[kSecAttrService as String] = appName
+        
+        switch accessibility {
+            case "afterFirstUnlock":
+                self.accessibility = kSecAttrAccessibleAfterFirstUnlock
+            case "whenUnlockedThisDeviceOnly":
+                self.accessibility = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+            case "afterFirstUnlockThisDeviceOnly":
+                self.accessibility = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            default:
+                self.accessibility = kSecAttrAccessibleWhenUnlocked
+        }
+        
         initialized = true
     }
 
@@ -192,13 +207,17 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
         if SecItemCopyMatching(search as CFDictionary, nil) == noErr {
             search[kSecMatchLimit] = nil
             
-            var update: [AnyHashable: Any] = [kSecValueData: value.data(using: .utf8)!]
+            var update: [AnyHashable: Any] = [
+                kSecValueData: value.data(using: .utf8)!,
+                kSecAttrAccessible: self.accessibility
+            ]
             if #available(macOS 10.15, *) {
                 update[kSecUseDataProtectionKeychain] = kCFBooleanTrue
             }
             status = SecItemUpdate(search as CFDictionary, update as CFDictionary)
         } else {
             search[kSecValueData] = value.data(using: .utf8)!
+            search[kSecAttrAccessible] = self.accessibility
             search[kSecMatchLimit] = nil
             if #available(macOS 10.15, *) {
                 search[kSecUseDataProtectionKeychain] = kCFBooleanTrue
