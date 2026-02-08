@@ -12,10 +12,6 @@ A simple and secure storage system for Flutter. Supports Android, iOS, macOS, Wi
 I'm currently creating a TOTP app where secrets are encrypted using a master password and I need
 a secure place to store the encryption / decryption key.
 
-I knew that Flutter already had a such package called `flutter_secure_storage`. The only problem
-is that it have 100+ open issues on Github, and that the author is currently inactive on
-Github.
-
 That's why I've decided to create my own solution : **Simple Secure Storage** (_SSS_).
 
 ## Features
@@ -34,7 +30,7 @@ Simple Secure Storage uses :
 
 * [Keychain](https://developer.apple.com/documentation/security/keychain_services) on Apple devices,
 which is supported since _iOS 2.0_ and _macOS 10.6_.
-* [`EncryptedSharedPreferences`](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
+* [`EncryptedSharedPreferences`](https://github.com/ed-george/encrypted-shared-preferences)
 on Android, which supports a minimum SDK version of, at least, _21_.
 * [`wincred.h`](https://learn.microsoft.com/en-us/windows/win32/api/wincred/) on Windows, which seems to
 be available since _Windows XP_.
@@ -55,20 +51,7 @@ Then, please make sure you follow the specific instructions for each platform yo
 
 #### Android
 
-Update the minimum SDK version in your `android/app/build.gradle` :
-
-```xml
-android {
-    <!-- Other settings -->
-    defaultConfig {
-        minSdkVersion 18
-        <!-- More settings -->
-    }
-    <!-- And more settings -->
-}
-```
-
-Also, as stated on [Android Developers](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences),
+As stated on [Android Developers](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences),
 
 > **WARNING:** The preference file should not be backed up with Auto Backup.
 > When restoring the file it is likely the key used to encrypt it will no longer be present.
