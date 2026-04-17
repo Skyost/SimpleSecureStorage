@@ -11,6 +11,25 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 Packages with breaking changes:
 
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`simple_secure_storage` - `v0.4.1`](#simple_secure_storage---v041)
+
+---
+
+#### `simple_secure_storage` - `v0.4.1`
+
+
+## 2026-04-17
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
  - [`simple_secure_storage` - `v0.4.0`](#simple_secure_storage---v040)
  - [`simple_secure_storage_web` - `v0.3.0`](#simple_secure_storage_web---v030)
 
