@@ -1,3 +1,9 @@
+## 0.3.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **REFACTOR**(web): Now relying on `cipherlib` instead of `webcrypto`.
+
 ## 0.2.3
 
 - **CHORE**: Updated dependencies.

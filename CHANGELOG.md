@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-04-17
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - [`simple_secure_storage` - `v0.4.0`](#simple_secure_storage---v040)
+ - [`simple_secure_storage_web` - `v0.3.0`](#simple_secure_storage_web---v030)
+
+Packages with other changes:
+
+ - There are no other changes in this release.
+
+---
+
+#### `simple_secure_storage` - `v0.4.0`
+
+ - **BREAKING** **REFACTOR**(web): Now relying on `cipherlib` instead of `webcrypto`.
+
+#### `simple_secure_storage_web` - `v0.3.0`
+
+ - **BREAKING** **REFACTOR**(web): Now relying on `cipherlib` instead of `webcrypto`.
+
+
 ## 2025-11-29
 
 ### Changes

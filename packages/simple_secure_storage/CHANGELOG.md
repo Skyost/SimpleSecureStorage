@@ -1,3 +1,9 @@
+## 0.4.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **REFACTOR**(web): Now relying on `cipherlib` instead of `webcrypto`.
+
 ## 0.3.7
 
  - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.
