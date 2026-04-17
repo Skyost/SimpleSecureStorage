@@ -3,7 +3,6 @@
 A simple and secure storage system for Flutter. Supports Android, iOS, macOS, Windows and web !
 
 [![Pub Likes](https://img.shields.io/pub/likes/simple_secure_storage?style=flat-square)](https://pub.dev/packages/simple_secure_storage/score)
-[![Pub Popularity](https://img.shields.io/pub/popularity/simple_secure_storage?style=flat-square)](https://pub.dev/packages/simple_secure_storage/score)
 [![Pub Points](https://img.shields.io/pub/points/simple_secure_storage?style=flat-square)](https://pub.dev/packages/simple_secure_storage/score)
 [![Maintained with Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square)](https://github.com/invertase/melos)
 
@@ -36,7 +35,7 @@ on Android, which supports a minimum SDK version of, at least, _21_.
 be available since _Windows XP_.
 * [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux. Therefore, you need a _secret service_ (`gnome_keyring`
 is commonly installed).
-* [`sembast_web`](https://pub.dev/packages/sembast_web) and [`webcrypto`](https://pub.dev/packages/webcrypto)
+* [`sembast_web`](https://pub.dev/packages/sembast_web) and [`cipherlib`](https://pub.dev/packages/cipherlib)
 on web.
 
 ### Installation
