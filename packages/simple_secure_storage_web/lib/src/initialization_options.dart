@@ -1,3 +1,4 @@
+import 'package:sembast_web/sembast_web.dart';
 import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 
 /// Allows to pass specific options to the web implementation.
@@ -7,6 +8,9 @@ class WebInitializationOptions extends InitializationOptions {
 
   /// The encryption salt.
   final String? _encryptionSalt;
+
+  /// The database factory.
+  final DatabaseFactory databaseFactory;
 
   /// Timeout before auto closing the database.
   /// You'll have to call [SimpleSecureStorageWeb.initialize] after that.
@@ -21,9 +25,11 @@ class WebInitializationOptions extends InitializationOptions {
     super.namespace,
     String? keyPassword,
     String? encryptionSalt,
+    DatabaseFactory? databaseFactory,
     this.autoCloseDatabaseTimeout,
     this.onDatabaseClosed,
-  })  : _keyPassword = keyPassword,
+  })  : databaseFactory = databaseFactory ?? databaseFactoryWeb,
+        _keyPassword = keyPassword,
         _encryptionSalt = encryptionSalt;
 
   /// Creates a new web initialization options instance.

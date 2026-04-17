@@ -1,9 +1,9 @@
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:just_throttle_it/just_throttle_it.dart';
 import 'package:sembast_web/sembast_web.dart';
 import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 import 'package:simple_secure_storage_web/src/crypto.dart';
 import 'package:simple_secure_storage_web/src/initialization_options.dart';
+import 'package:simple_secure_storage_web/src/throttle.dart';
 
 /// A web implementation of the SimpleSecureStoragePlatform of the SimpleSecureStorage plugin.
 class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
@@ -12,9 +12,6 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
 
   /// The database instance.
   Database? _database;
-
-  /// The database factory.
-  EncryptedDatabaseFactory? _factory;
 
   /// Delay before auto closing.
   Duration? _autoCloseDelay;
@@ -32,15 +29,13 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   Future<void> initialize(InitializationOptions options) async {
     WebInitializationOptions webOptions = options is WebInitializationOptions ? options : WebInitializationOptions.from(options);
     _prefix = options.prefix ?? '';
-    if (_factory == null) {
-      _factory = EncryptedDatabaseFactory(
-        databaseFactory: databaseFactoryWeb,
-        password: webOptions.keyPassword,
-        salt: webOptions.encryptionSalt,
-      );
-    }
     if (_database == null) {
-      _database = await _factory!.openDatabase(webOptions.namespace, version: 1);
+      _database = await webOptions.databaseFactory.openDatabase(webOptions.namespace,
+          version: 1,
+          codec: getEncryptSembastCodec(
+            password: webOptions.keyPassword,
+            salt: webOptions.encryptionSalt,
+          ));
     }
     if (_store == null) {
       _store = stringMapStoreFactory.store();
@@ -112,6 +107,6 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
 
   /// Ensures the plugin has been initialized.
   void _ensureInitialized() {
-    assert(_store != null && _factory != null && _database != null, 'Please make sure you have initialized the plugin.');
+    assert(_store != null && _database != null, 'Please make sure you have initialized the plugin.');
   }
 }
