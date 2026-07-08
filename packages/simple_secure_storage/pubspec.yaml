@@ -10,7 +10,7 @@ funding:
   - https://paypal.me/Skyost
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
+  sdk: '>=3.12.0 <4.0.0'
   flutter: '>=3.29.0'
 
 dependencies:

@@ -55,52 +55,52 @@ class _SimpleSecureStorageExampleAppState extends State<SimpleSecureStorageExamp
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: const Text('SimpleSecureStorage example app'),
-          ),
-          body: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text('Increment count : ${has ? count : 'no yet incremented !'}'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      int count = this.count + 1;
-                      await SimpleSecureStorage.write('count', count.toString());
-                      await SimpleSecureStorage.write('another_value', 'Hello world !');
-                      await refreshIncrementCount();
-                    },
-                    child: const Text('Increment and save'),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      await SimpleSecureStorage.delete('count');
-                      await refreshIncrementCount();
-                    },
-                    child: const Text('Delete'),
-                  ),
-                ),
-                OutlinedButton(
-                  onPressed: () async {
-                    await SimpleSecureStorage.clear();
-                    await refreshIncrementCount();
-                  },
-                  child: const Text('Clear'),
-                ),
-              ],
+    home: Scaffold(
+      appBar: AppBar(
+        title: const Text('SimpleSecureStorage example app'),
+      ),
+      body: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text('Increment count : ${has ? count : 'no yet incremented !'}'),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: OutlinedButton(
+                onPressed: () async {
+                  int count = this.count + 1;
+                  await SimpleSecureStorage.write('count', count.toString());
+                  await SimpleSecureStorage.write('another_value', 'Hello world !');
+                  await refreshIncrementCount();
+                },
+                child: const Text('Increment and save'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: OutlinedButton(
+                onPressed: () async {
+                  await SimpleSecureStorage.delete('count');
+                  await refreshIncrementCount();
+                },
+                child: const Text('Delete'),
+              ),
+            ),
+            OutlinedButton(
+              onPressed: () async {
+                await SimpleSecureStorage.clear();
+                await refreshIncrementCount();
+              },
+              child: const Text('Clear'),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
