@@ -211,7 +211,7 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
                 kSecValueData: value.data(using: .utf8)!,
                 kSecAttrAccessible: self.accessibility
             ]
-            if #available(macOS 10.15, *) {
+            if #available(iOS 13.0, macOS 10.15, *) {
                 update[kSecUseDataProtectionKeychain] = kCFBooleanTrue
             }
             status = SecItemUpdate(search as CFDictionary, update as CFDictionary)
@@ -219,7 +219,7 @@ public class SimpleSecureStoragePlugin: NSObject, FlutterPlugin {
             search[kSecValueData] = value.data(using: .utf8)!
             search[kSecAttrAccessible] = self.accessibility
             search[kSecMatchLimit] = nil
-            if #available(macOS 10.15, *) {
+            if #available(iOS 13.0, macOS 10.15, *) {
                 search[kSecUseDataProtectionKeychain] = kCFBooleanTrue
             }
             status = SecItemAdd(search as CFDictionary, nil)

@@ -13,7 +13,7 @@ Simple secure storage for Flutter.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Skyost' => 'me@skyost.eu' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'simple_secure_storage_darwin/Sources/simple_secure_storage_darwin/**/*'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '11.0'
