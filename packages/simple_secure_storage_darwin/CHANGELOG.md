@@ -1,3 +1,7 @@
+## 0.2.3
+
+ - **REFACTOR**(darwin): Migrated to SPM.
+
 ## 0.2.2
 
  - **REFACTOR**(ios): Extract `executeInBackground` helper to reduce code duplication.

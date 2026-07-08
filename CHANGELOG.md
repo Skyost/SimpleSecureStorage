@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-07-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`simple_secure_storage` - `v0.4.2`](#simple_secure_storage---v042)
+ - [`simple_secure_storage_darwin` - `v0.2.3`](#simple_secure_storage_darwin---v023)
+
+---
+
+#### `simple_secure_storage` - `v0.4.2`
+
+ - **REFACTOR**(darwin): Migrated to SPM.
+
+#### `simple_secure_storage_darwin` - `v0.2.3`
+
+ - **REFACTOR**(darwin): Migrated to SPM.
+
+
 ## 2026-04-17
 
 ### Changes

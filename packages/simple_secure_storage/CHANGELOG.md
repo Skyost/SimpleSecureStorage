@@ -1,3 +1,7 @@
+## 0.4.2
+
+ - **REFACTOR**(darwin): Migrated to SPM.
+
 ## 0.4.1
 
 ## 0.4.0
