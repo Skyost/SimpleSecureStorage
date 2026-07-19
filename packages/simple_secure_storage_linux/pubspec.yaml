@@ -15,9 +15,11 @@ flutter:
     platforms:
       implements: simple_secure_storage
       linux:
-        pluginClass: SimpleSecureStorageLinuxPlugin
+        dartPluginClass: SimpleSecureStorageLinux
+        fileName: simple_secure_storage_linux.dart
 
 dependencies:
   flutter:
     sdk: flutter
   simple_secure_storage_platform_interface: ^0.2.3
+  freedesktop_secret: ^0.1.0

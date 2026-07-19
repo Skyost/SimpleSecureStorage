@@ -33,7 +33,7 @@ which is supported since _iOS 2.0_ and _macOS 10.6_.
 on Android, which supports a minimum SDK version of, at least, _21_.
 * [`wincred.h`](https://learn.microsoft.com/en-us/windows/win32/api/wincred/) on Windows, which seems to
 be available since _Windows XP_.
-* [`libsecret`](https://wiki.gnome.org/Projects/Libsecret) on Linux. Therefore, you need a _secret service_ (`gnome_keyring`
+* [`org.freedesktop.secrets`](https://specifications.freedesktop.org/secret-service/latest-single) service implementation on Linux. A _secret service_ must be available (`gnome_keyring`
 is commonly installed).
 * [`sembast_web`](https://pub.dev/packages/sembast_web) and [`cipherlib`](https://pub.dev/packages/cipherlib)
 on web.
@@ -77,11 +77,13 @@ In Xcode, go to _Project settings_ > _Capabilities_ and enable _Keychain Sharing
 
 #### Linux
 
-Run the following command to install `libsecret-1-dev` :
+These requirements are typically already satisfied by default on most desktop environments.
 
-```shell
-sudo apt install -y libsecret-1-dev
-```
+- D-Bus support.
+- A running Secret Service implementation (such as GNOME Keyring, KDE Wallet, or another implementation providing the `org.freedesktop.secrets` D-Bus service).
+
+> [!TIP]
+> Starting from `0.3.0`, installing GNOME libsecret is no longer required. The Linux implementation uses the Secret Service D-Bus API directly.
 
 ### Code snippet
 
