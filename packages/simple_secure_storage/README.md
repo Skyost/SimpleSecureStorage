@@ -8,16 +8,16 @@ A simple and secure storage system for Flutter. Supports Android, iOS, macOS, Wi
 
 ## Motivations
 
-I'm currently creating a TOTP app where secrets are encrypted using a master password and I need
-a secure place to store the encryption / decryption key.
+I'm currently creating a TOTP app in which secrets are encrypted with a master password, and I need
+a secure place to store the encryption/decryption key.
 
-That's why I've decided to create my own solution : **Simple Secure Storage** (_SSS_).
+That's why I decided to create my own solution : **Simple Secure Storage** (_SSS_).
 
 ## Features
 
 * Very _very_ simple and straightforward.
-* Supports Android, iOS, macOS, Windows, Linux and web.
-* Allows data to be cached (so that you can access it as fast as possible).
+* Supports Android, iOS, macOS, Windows, Linux, and the web.
+* Supports caching data for faster access.
 * Secure.
 * Again, very simple.
 
@@ -28,15 +28,15 @@ That's why I've decided to create my own solution : **Simple Secure Storage** (_
 Simple Secure Storage uses :
 
 * [Keychain](https://developer.apple.com/documentation/security/keychain_services) on Apple devices,
-which is supported since _iOS 2.0_ and _macOS 10.6_.
+which has been supported since _iOS 2.0_ and _macOS 10.6_.
 * [`EncryptedSharedPreferences`](https://github.com/ed-george/encrypted-shared-preferences)
-on Android, which supports a minimum SDK version of, at least, _21_.
+on Android, which requires a minimum SDK version of _21_.
 * [`wincred.h`](https://learn.microsoft.com/en-us/windows/win32/api/wincred/) on Windows, which seems to
 be available since _Windows XP_.
-* [`org.freedesktop.secrets`](https://specifications.freedesktop.org/secret-service/latest-single) service implementation on Linux. A _secret service_ must be available (`gnome_keyring`
-is commonly installed).
+* An [`org.freedesktop.secrets`](https://specifications.freedesktop.org/secret-service/latest-single)
+service implementation on Linux. A _secret service_ must be available (`gnome_keyring` is commonly installed).
 * [`sembast_web`](https://pub.dev/packages/sembast_web) and [`cipherlib`](https://pub.dev/packages/cipherlib)
-on web.
+on the web.
 
 ### Installation
 
@@ -46,17 +46,18 @@ Run the following command to add Simple Secure Storage to your Flutter project :
 flutter pub add simple_secure_storage
 ```
 
-Then, please make sure you follow the specific instructions for each platform you're targeting.
+Then follow the instructions for each platform you target.
 
 #### Android
 
 As stated on [Android Developers](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences),
 
-> **WARNING:** The preference file should not be backed up with Auto Backup.
+> [!WARNING]
+> The preference file should not be backed up with Auto Backup.
 > When restoring the file it is likely the key used to encrypt it will no longer be present.
 > You should exclude all `EncryptedSharedPreferences` from backup using [backup rules](https://developer.android.com/guide/topics/data/autobackup#IncludingFiles).
 
-so either you completely disable auto backup, in your `AndroidManifest.xml` :
+Either disable Auto Backup entirely in your `AndroidManifest.xml` :
 
 ```xml
 <application
@@ -65,10 +66,9 @@ so either you completely disable auto backup, in your `AndroidManifest.xml` :
     android:fullBackupContent="false">
 ```
 
-or you only disable the backup of the encrypted shared preferences, which can be done
-using [backup rules](https://developer.android.com/guide/topics/data/autobackup#IncludingFiles).
-Note that the `sharedpref` path is the `namespace` key you're passing to the `initialize` method
-of the plugin.
+or exclude only the encrypted shared preferences using
+[backup rules](https://developer.android.com/guide/topics/data/autobackup#IncludingFiles).
+The `sharedpref` path is the `namespace` value passed to the plugin's `initialize` method.
 
 #### macOS
 
@@ -79,8 +79,8 @@ In Xcode, go to _Project settings_ > _Capabilities_ and enable _Keychain Sharing
 
 These requirements are typically already satisfied by default on most desktop environments.
 
-- D-Bus support.
-- A running Secret Service implementation (such as GNOME Keyring, KDE Wallet, or another implementation providing the `org.freedesktop.secrets` D-Bus service).
+* D-Bus support.
+* A running Secret Service implementation (such as GNOME Keyring, KDE Wallet, or another implementation providing the `org.freedesktop.secrets` D-Bus service).
 
 > [!TIP]
 > Starting from `0.3.0`, installing GNOME libsecret is no longer required. The Linux implementation uses the Secret Service D-Bus API directly.
@@ -90,13 +90,13 @@ These requirements are typically already satisfied by default on most desktop en
 Here's a simple example to get started.
 
 ```dart
-// Initialize the plugin before using. Typically done in your `main()` method.
-// Please don't forget to provide your namespace and your app name.
+// Initialize the plugin before using it, typically in your `main()` method.
+// You can provide a namespace and application name through `InitializationOptions`.
 if (kIsWeb) {
   // To secure your data on Flutter web, we have to encrypt it using a password and a salt.
   await SimpleSecureStorage.initialize(WebInitializationOptions(keyPassword: 'password', encryptionSalt: 'salt'));
 } else {
-  await SimpleSecureStorage.initialize(); // Feel free to use `InitializationOptions` if you want here too.
+  await SimpleSecureStorage.initialize(); // You can also pass `InitializationOptions` here.
 }
 
 // Write a value.
@@ -117,17 +117,17 @@ await SimpleSecureStorage.clear();
 
 In the previous snippet, everything is being read "on demand". You may want to access your data
 without always having to write `await`. To do so, use the class `CachedSimpleSecureStorage`.
-It behaves exactly like the snippet above, except that you don't have to call `await SimpleSecureStorage.initialize()`,
-but `await CachedSimpleSecureStorage.getInstance()`.
+It behaves exactly like the snippet above, except you call `await CachedSimpleSecureStorage.getInstance()`
+instead of `await SimpleSecureStorage.initialize()`.
 
 If you want a more complete example, feel free to check and run
 [this one](https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage/example),
-which available on Github. Note that, to run the example app on Darwin platforms (iOS & macOS),
-you need to configure the development team in the project settings.
+which is available on GitHub. To run the example app on Apple platforms (iOS and macOS),
+configure the development team in the project settings.
 
 ## Contributions
 
-You have a lot of options to contribute to this project ! You can :
+There are several ways to contribute to this project :
 
 * [Fork it](https://github.com/Skyost/SimpleSecureStorage/fork) on Github.
 * [Submit](https://github.com/Skyost/SimpleSecureStorage/issues/new/choose) a feature request or a bug report.
