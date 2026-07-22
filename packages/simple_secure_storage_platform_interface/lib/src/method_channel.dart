@@ -45,7 +45,7 @@ class MethodChannelSimpleSecureStorage extends SimpleSecureStoragePlatform {
 
   /// Creates the arguments to send to the method channel.
   Map<String, String?> _createArguments(String key, [String? value]) => {
-        'key': _prefix + key,
-        if (value != null) 'value': value,
-      };
+    'key': _prefix + key,
+    'value': ?value,
+  };
 }

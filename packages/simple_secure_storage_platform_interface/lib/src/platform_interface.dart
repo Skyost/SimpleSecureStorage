@@ -12,9 +12,9 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
 
   /// Constructs a SimpleSecureStoragePlatform.
   SimpleSecureStoragePlatform()
-      : super(
-          token: _token,
-        );
+    : super(
+        token: _token,
+      );
 
   /// The default instance of [SimpleSecureStoragePlatform] to use.
   ///
@@ -30,8 +30,7 @@ abstract class SimpleSecureStoragePlatform extends PlatformInterface {
   }
 
   /// Initializes the plugin.
-  Future<void> initialize(InitializationOptions options) =>
-      Future.value();
+  Future<void> initialize(InitializationOptions options) => Future.value();
 
   /// Returns whether the secure storage has the given [key].
   Future<bool> has(String key);
