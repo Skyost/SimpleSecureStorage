@@ -8,8 +8,7 @@ typedef _StorageMap = Map<String, String>;
 /// Linux implementation of SimpleSecureStorage using the `org.freedesktop.secrets` D-Bus API.
 class SimpleSecureStorageLinux extends SimpleSecureStoragePlatform {
   /// Registers this class as the default instance of [SimpleSecureStoragePlatform].
-  static void registerWith() =>
-      SimpleSecureStoragePlatform.instance = SimpleSecureStorageLinux();
+  static void registerWith() => SimpleSecureStoragePlatform.instance = SimpleSecureStorageLinux();
 
   /// Secret Service client (`org.freedesktop.secrets`).
   final FreeDesktopSecret _client = FreeDesktopSecret();
@@ -60,7 +59,7 @@ class SimpleSecureStorageLinux extends SimpleSecureStoragePlatform {
     );
   }
 
-  /// Initializes the plugin.
+  @override
   Future<void> initialize(InitializationOptions options) async {
     await _client.initialize();
 
@@ -129,6 +128,5 @@ class SimpleSecureStorageLinux extends SimpleSecureStoragePlatform {
 
 extension on SecretItem {
   /// Decodes the stored key/value map.
-  _StorageMap storageMap() =>
-      (jsonDecode(secretAsText()) as Map<String, Object?>).cast();
+  _StorageMap storageMap() => (jsonDecode(secretAsText()) as Map<String, Object?>).cast();
 }
