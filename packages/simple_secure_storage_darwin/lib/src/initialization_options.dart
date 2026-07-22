@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 
 /// Allows to pass specific options to the Darwin implementation.
@@ -10,14 +11,14 @@ class DarwinInitializationOptions extends InitializationOptions {
     super.appName,
     super.namespace,
     super.prefix,
-    this.accessibility = DarwinAccessibility.whenUnlocked,
-  });
+    DarwinAccessibility? accessibility,
+  }) : accessibility = accessibility ?? DarwinAccessibility.whenUnlocked;
 
   @override
   Map<String, dynamic> toMap() => {
-        ...super.toMap(),
-        'accessibility': accessibility.name,
-      };
+    ...super.toMap(),
+    'accessibility': accessibility.name,
+  };
 }
 
 /// Defines the accessibility of the keychain items.
@@ -43,4 +44,21 @@ enum DarwinAccessibility {
   /// After the first unlock, the data remains accessible until the next restart.
   /// This is recommended for items that need to be accessed by background applications.
   afterFirstUnlockThisDeviceOnly,
+}
+
+/// Allows to configure the plugin initialization for Darwin platforms (ie. iOS and macOS).
+extension ConfigureForDarwin on InitializationOptions {
+  /// Configures the plugin initialization for Darwin platforms (ie. iOS and macOS).
+  InitializationOptions configureForDarwin({
+    String? keyPassword,
+    String? encryptionSalt,
+    DarwinAccessibility? accessibility,
+  }) => !kIsWeb && (defaultTargetPlatform == .iOS || defaultTargetPlatform == .macOS)
+      ? DarwinInitializationOptions(
+          appName: appName,
+          namespace: namespace,
+          prefix: prefix,
+          accessibility: accessibility,
+        )
+      : copyWith();
 }
