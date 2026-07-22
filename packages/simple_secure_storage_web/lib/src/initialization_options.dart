@@ -60,6 +60,23 @@ class WebInitializationOptions extends InitializationOptions {
   String get namespace => super.namespace!;
 
   @override
+  bool operator ==(Object other) {
+    if (other is! WebInitializationOptions) {
+      return super == other;
+    }
+    return appName == other.appName &&
+        namespace == other.namespace &&
+        _keyPassword == other._keyPassword &&
+        _encryptionSalt == other._encryptionSalt &&
+        databaseFactory == other.databaseFactory &&
+        autoCloseDatabaseTimeout == other.autoCloseDatabaseTimeout &&
+        onDatabaseClosed == other.onDatabaseClosed;
+  }
+
+  @override
+  int get hashCode => Object.hash(appName, namespace, _keyPassword, _encryptionSalt, databaseFactory, autoCloseDatabaseTimeout, onDatabaseClosed);
+
+  @override
   WebInitializationOptions copyWith({
     String? appName,
     String? namespace,
