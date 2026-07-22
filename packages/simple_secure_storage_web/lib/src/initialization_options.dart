@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sembast_web/sembast_web.dart';
 import 'package:simple_secure_storage_platform_interface/simple_secure_storage_platform_interface.dart';
 
@@ -17,41 +18,93 @@ class WebInitializationOptions extends InitializationOptions {
   final Duration? autoCloseDatabaseTimeout;
 
   /// Will be called on database close.
-  final Function()? onDatabaseClosed;
+  final Function? onDatabaseClosed;
 
   /// Creates a new web initialization options instance.
   WebInitializationOptions({
-    super.appName,
-    super.namespace,
-    String? keyPassword,
-    String? encryptionSalt,
+    String? appName,
+    String? namespace,
+    this._keyPassword,
+    this._encryptionSalt,
     DatabaseFactory? databaseFactory,
     this.autoCloseDatabaseTimeout,
     this.onDatabaseClosed,
-  })  : databaseFactory = databaseFactory ?? databaseFactoryWeb,
-        _keyPassword = keyPassword,
-        _encryptionSalt = encryptionSalt;
+  }) : databaseFactory = databaseFactory ?? databaseFactoryWeb,
+       super(
+         appName: appName ?? 'Simple Secure Storage',
+         namespace: namespace ?? 'fr.skyost.simple_secure_storage',
+       );
 
   /// Creates a new web initialization options instance.
   WebInitializationOptions.from(InitializationOptions options)
-      : this(
-          appName: options.appName,
-          namespace: options.namespace,
-        );
+    : this(
+        appName: options.appName,
+        namespace: options.namespace,
+      );
 
   /// Returns the key password, or a default value if not specified.
   String get keyPassword {
     if (_keyPassword != null) {
       return _keyPassword;
     }
-    String namespaceString = namespace;
-    String appNameString = appName ?? 'Simple Secure Storage';
-    return '$namespaceString.$appNameString';
+    return '$namespace.$appName';
   }
 
   /// Returns the encryption salt, or a default value if not specified.
   String get encryptionSalt => _encryptionSalt ?? '_salt';
 
-  /// Returns the namespace, or a default value if not specified.
-  String get namespace => super.namespace ?? 'fr.skyost.simple_secure_storage';
+  @override
+  String get appName => super.appName!;
+
+  @override
+  String get namespace => super.namespace!;
+
+  @override
+  WebInitializationOptions copyWith({
+    String? appName,
+    String? namespace,
+    String? prefix,
+    String? keyPassword,
+    String? encryptionSalt,
+    DatabaseFactory? databaseFactory,
+    Duration? autoCloseDatabaseTimeout,
+    Function? onDatabaseClosed,
+  }) => WebInitializationOptions(
+    appName: appName ?? this.appName,
+    namespace: namespace ?? this.namespace,
+    keyPassword: keyPassword ?? _keyPassword,
+    encryptionSalt: encryptionSalt ?? _encryptionSalt,
+    databaseFactory: databaseFactory ?? this.databaseFactory,
+    autoCloseDatabaseTimeout: autoCloseDatabaseTimeout ?? this.autoCloseDatabaseTimeout,
+    onDatabaseClosed: onDatabaseClosed ?? this.onDatabaseClosed,
+  );
+
+  @override
+  Map<String, dynamic> toMap() => {
+    ...super.toMap(),
+    'keyPassword': ?_keyPassword,
+    'encryptionSalt': ?_encryptionSalt,
+  };
+}
+
+/// Allows to configure the plugin initialization for web.
+extension ConfigureForWeb on InitializationOptions {
+  /// Configures the plugin initialization for web.
+  InitializationOptions configureForWeb({
+    String? keyPassword,
+    String? encryptionSalt,
+    DatabaseFactory? databaseFactory,
+    Duration? autoCloseDatabaseTimeout,
+    Function? onDatabaseClosed,
+  }) => kIsWeb
+      ? WebInitializationOptions(
+          appName: appName,
+          namespace: namespace,
+          keyPassword: keyPassword,
+          encryptionSalt: encryptionSalt,
+          databaseFactory: databaseFactory,
+          autoCloseDatabaseTimeout: autoCloseDatabaseTimeout,
+          onDatabaseClosed: onDatabaseClosed,
+        )
+      : copyWith();
 }

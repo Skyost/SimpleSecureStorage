@@ -29,17 +29,15 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
   Future<void> initialize(InitializationOptions options) async {
     WebInitializationOptions webOptions = options is WebInitializationOptions ? options : WebInitializationOptions.from(options);
     _prefix = options.prefix ?? '';
-    if (_database == null) {
-      _database = await webOptions.databaseFactory.openDatabase(webOptions.namespace,
-          version: 1,
-          codec: getEncryptSembastCodec(
-            password: webOptions.keyPassword,
-            salt: webOptions.encryptionSalt,
-          ));
-    }
-    if (_store == null) {
-      _store = stringMapStoreFactory.store();
-    }
+    _database ??= await webOptions.databaseFactory.openDatabase(
+        webOptions.namespace,
+        version: 1,
+        codec: getEncryptSembastCodec(
+          password: webOptions.keyPassword,
+          salt: webOptions.encryptionSalt,
+        ),
+      );
+    _store ??= stringMapStoreFactory.store();
   }
 
   @override
@@ -64,7 +62,7 @@ class SimpleSecureStorageWeb extends SimpleSecureStoragePlatform {
     List<RecordSnapshot<String, Object?>> records = await _store!.find(_database!);
     Map<String, String> result = {
       for (RecordSnapshot<String, Object?> record in records)
-        if (record.value != null) record.key.substring(_prefix.length): record.value.toString()
+        if (record.value != null) record.key.substring(_prefix.length): record.value.toString(),
     };
     _throttleAutoClose();
     return result;

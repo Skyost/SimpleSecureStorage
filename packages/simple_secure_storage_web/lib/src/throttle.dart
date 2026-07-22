@@ -3,7 +3,7 @@ import 'dart:async';
 /// A collection of static functions to throttle calls to a target function.
 class Throttle {
   /// Map of functions currently being throttled.
-  static Map<Function, _ThrottleTarget> _throttled = <Function, _ThrottleTarget>{};
+  static final Map<Function, _ThrottleTarget> _throttled = <Function, _ThrottleTarget>{};
 
   /// Clears the [target] from the functions to throttle.
   static bool clear(Function target) {
@@ -23,8 +23,14 @@ class Throttle {
     Map<Symbol, dynamic> namedArguments = const {},
     bool leading = true,
     bool trailing = false,
-  }) =>
-      duration(Duration(milliseconds: timeoutMs), target, positionalArguments: positionalArguments, namedArguments: namedArguments, leading: leading, trailing: trailing);
+  }) => duration(
+    Duration(milliseconds: timeoutMs),
+    target,
+    positionalArguments: positionalArguments,
+    namedArguments: namedArguments,
+    leading: leading,
+    trailing: trailing,
+  );
 
   /// Calls [duration] with a timeout specified in seconds.
   static bool seconds(
@@ -34,8 +40,14 @@ class Throttle {
     Map<Symbol, dynamic> namedArguments = const {},
     bool leading = true,
     bool trailing = false,
-  }) =>
-      duration(Duration(seconds: timeoutSeconds), target, positionalArguments: positionalArguments, namedArguments: namedArguments, leading: leading, trailing: trailing);
+  }) => duration(
+    Duration(seconds: timeoutSeconds),
+    target,
+    positionalArguments: positionalArguments,
+    namedArguments: namedArguments,
+    leading: leading,
+    trailing: trailing,
+  );
 
   /// Calls [target] based on leading/trailing configuration and prevents subsequent calls until [timeout] duration.
   static bool duration(
@@ -93,9 +105,7 @@ class _ThrottleTarget {
   Map<Symbol, dynamic> latestNamedArguments;
 
   /// Creates a new throttle target instance.
-  _ThrottleTarget(this.target, this.positionalArguments, this.namedArguments, this.hasTrailing)
-      : latestPositionalArguments = positionalArguments,
-        latestNamedArguments = namedArguments;
+  _ThrottleTarget(this.target, this.positionalArguments, this.namedArguments, this.hasTrailing) : latestPositionalArguments = positionalArguments, latestNamedArguments = namedArguments;
 
   /// Updates the trailing call.
   void updateTrailingCall(List<dynamic> newPositionalArgs, Map<Symbol, dynamic> newNamedArgs) {

@@ -70,7 +70,7 @@ class _EncryptCodec extends AsyncContentCodecBase {
     encoded = encoded.substring(encodedInitializationVectorLength);
 
     // Decode the input.
-    dynamic decoded = json.decode(utf8.decode(await aes.gcm(initializationVector).decrypt(base64Decode(encoded))));
+    dynamic decoded = json.decode(utf8.decode(aes.gcm(initializationVector).decrypt(base64Decode(encoded))));
     if (decoded is Map) {
       return decoded.cast<String, Object?>();
     }
@@ -85,7 +85,7 @@ class _EncryptCodec extends AsyncContentCodecBase {
     assert(ivEncoded.length == encodedInitializationVectorLength);
 
     // Encode the input value.
-    String encoded = base64.encode(await aes.gcm(initializationVector).encrypt(utf8.encode(json.encode(input))));
+    String encoded = base64.encode(aes.gcm(initializationVector).encrypt(utf8.encode(json.encode(input))));
 
     // Prepend the initial value.
     return '$ivEncoded$encoded';
