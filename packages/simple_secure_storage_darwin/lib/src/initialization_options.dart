@@ -15,6 +15,30 @@ class DarwinInitializationOptions extends InitializationOptions {
   }) : accessibility = accessibility ?? DarwinAccessibility.whenUnlocked;
 
   @override
+  bool operator ==(Object other) {
+    if (other is! DarwinInitializationOptions) {
+      return super == other;
+    }
+    return appName == other.appName && namespace == other.namespace && accessibility == other.accessibility;
+  }
+
+  @override
+  int get hashCode => Object.hash(appName, namespace, accessibility);
+
+  @override
+  DarwinInitializationOptions copyWith({
+    String? appName,
+    String? namespace,
+    String? prefix,
+    DarwinAccessibility? accessibility,
+  }) => DarwinInitializationOptions(
+    appName: appName ?? this.appName,
+    namespace: namespace ?? this.namespace,
+    prefix: prefix ?? this.prefix,
+    accessibility: accessibility ?? this.accessibility,
+  );
+
+  @override
   Map<String, dynamic> toMap() => {
     ...super.toMap(),
     'accessibility': accessibility.name,
