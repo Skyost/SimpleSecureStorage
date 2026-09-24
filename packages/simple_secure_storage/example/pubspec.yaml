@@ -34,8 +34,10 @@ dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  test: ^1.31.1
 
 # The following section is specific to Flutter packages.
 flutter:
