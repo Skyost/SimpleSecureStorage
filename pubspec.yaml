@@ -10,6 +10,7 @@ workspace:
   - packages/simple_secure_storage_android
   - packages/simple_secure_storage_darwin
   - packages/simple_secure_storage_linux
+  - packages/simple_secure_storage_linux_portal
   - packages/simple_secure_storage_platform_interface
   - packages/simple_secure_storage_web
   - packages/simple_secure_storage_windows

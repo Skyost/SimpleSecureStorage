@@ -1,0 +1,20 @@
+name: simple_secure_storage_linux_portal
+description: A Linux implementation of the simple_secure_storage plugin using the XDG Desktop Portal Secret API (org.freedesktop.portal.Secret)
+homepage: https://github.com/Skyost/SimpleSecureStorage
+repository: https://github.com/Skyost/SimpleSecureStorage/tree/main/packages/simple_secure_storage_linux_portal
+issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
+version: 0.1.0
+resolution: workspace
+topics: [os-integration, xdg-portal, secure-storage, simple-secure-storage]
+
+environment:
+  sdk: '>=3.12.0 <4.0.0'
+
+dependencies:
+  simple_secure_storage_platform_interface: ^0.2.3
+  xdg_secret_portal_store: ^0.2.0
+  # TODO: Remove xdg_secret_portal_store_default and implement xdg_secret_portal_store using package:cipherlib (https://github.com/Skyost/SimpleSecureStorage/issues/16)
+  xdg_secret_portal_store_default: ^0.1.1
+  xdg_desktop_portal: ^0.1.13
+  xdg_directories: ^1.1.0
+  linux_application_id: ^1.0.0
