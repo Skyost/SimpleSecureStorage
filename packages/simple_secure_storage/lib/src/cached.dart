@@ -4,8 +4,8 @@ import 'package:simple_secure_storage_platform_interface/simple_secure_storage_p
 /// Allows to load and cache all values of the secure storage.
 /// This means, no future and instant access of all your values.
 class CachedSimpleSecureStorage extends SimpleSecureStorage {
-  /// The cached simple secure storage instance.
-  static CachedSimpleSecureStorage? _instance;
+  /// The shared initialization future, retained after a successful cache load.
+  static Future<CachedSimpleSecureStorage>? _instanceFuture;
 
   /// The cached values.
   final Map<String, String> _cache = {};
@@ -14,13 +14,20 @@ class CachedSimpleSecureStorage extends SimpleSecureStorage {
   CachedSimpleSecureStorage._();
 
   /// Returns the cached simple secure storage instance.
+  ///
+  /// Concurrent calls share the same initialization and cache load. Once loaded,
+  /// the instance is reused; [options] only apply when creating it. Call
+  /// [refreshCache] explicitly to reload values from the platform.
+  /// A failed initialization or cache load can be retried with another call.
   static Future<CachedSimpleSecureStorage> getInstance([
     InitializationOptions options = const InitializationOptions(),
-  ]) async {
-    if (_instance != null) {
-      return _instance!;
-    }
+  ]) => _instanceFuture ??= _createInstance(options).onError((Object error, StackTrace stackTrace) {
+    _instanceFuture = null;
+    Error.throwWithStackTrace(error, stackTrace);
+  });
 
+  /// Initializes the platform and fully loads the cache before exposing it.
+  static Future<CachedSimpleSecureStorage> _createInstance(InitializationOptions options) async {
     await SimpleSecureStorage.initialize(options);
 
     CachedSimpleSecureStorage instance = CachedSimpleSecureStorage._();

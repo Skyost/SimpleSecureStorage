@@ -8,15 +8,15 @@ class MethodChannelSimpleSecureStorage extends SimpleSecureStoragePlatform {
   final MethodChannel _methodChannel = const MethodChannel('fr.skyost.simple_secure_storage');
 
   /// The prefix to prepend to keys.
-  late final String _prefix;
+  late String _prefix;
 
   @override
   Future<void> initialize(InitializationOptions options) async {
-    _prefix = options.prefix ?? '';
     await _methodChannel.invokeMethod(
       'initialize',
       options.toMap(),
     );
+    _prefix = options.prefix ?? '';
   }
 
   @override
