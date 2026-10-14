@@ -18,4 +18,4 @@ workspace:
   - packages/simple_secure_storage/example
 
 dev_dependencies:
-  melos: ^8.2.2
+  melos: ^8.9.0
