@@ -3,7 +3,7 @@ description: Web implementation of the Simple Secure Storage plugin.
 homepage: https://github.com/Skyost/SimpleSecureStorage
 repository: https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage_web
 issue_tracker: https://github.com/Skyost/SimpleSecureStorage/issues
-version: 0.3.0
+version: 0.3.1
 resolution: workspace
 
 environment:
@@ -26,4 +26,4 @@ dependencies:
   cipherlib: ">=0.7.0 <1.0.0"
   sembast: ">=3.9.0 <3.10.0"
   sembast_web: ">=2.4.0 <2.5.0"
-  simple_secure_storage_platform_interface: ^0.2.3
+  simple_secure_storage_platform_interface: ^0.2.4

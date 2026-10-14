@@ -1,3 +1,7 @@
+## 0.3.1
+
+ - **REFACTOR**(web): Added `configureForWeb` method that allows to easily create `WebInitializationOptions` only if needed.
+
 ## 0.3.0
 
 > Note: This release has breaking changes.

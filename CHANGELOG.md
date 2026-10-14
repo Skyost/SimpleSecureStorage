@@ -3,6 +3,59 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-10-14
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`simple_secure_storage` - `v0.4.3`](#simple_secure_storage---v043)
+ - [`simple_secure_storage_linux` - `v0.2.6`](#simple_secure_storage_linux---v026)
+ - [`simple_secure_storage_platform_interface` - `v0.2.4`](#simple_secure_storage_platform_interface---v024)
+ - [`simple_secure_storage_web` - `v0.3.1`](#simple_secure_storage_web---v031)
+ - [`simple_secure_storage_android` - `v0.3.2`](#simple_secure_storage_android---v032)
+ - [`simple_secure_storage_darwin` - `v0.2.4`](#simple_secure_storage_darwin---v024)
+ - [`simple_secure_storage_linux_libsecret` - `v0.1.1`](#simple_secure_storage_linux_libsecret---v011)
+ - [`simple_secure_storage_windows` - `v0.3.3`](#simple_secure_storage_windows---v033)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `simple_secure_storage_android` - `v0.3.2`
+ - `simple_secure_storage_darwin` - `v0.2.4`
+ - `simple_secure_storage_linux_libsecret` - `v0.1.1`
+ - `simple_secure_storage_windows` - `v0.3.3`
+
+---
+
+#### `simple_secure_storage` - `v0.4.3`
+
+ - **REFACTOR**(web): Added `configureForWeb` method that allows to easily create `WebInitializationOptions` only if needed.
+ - **REFACTOR**(linux): communicate with org.freedesktop.secrets directly over D-Bus.
+ - **FIX**: Reuse the cached storage instance and share initialization between concurrent callers, while allowing retries after initialization or cache-loading failures.
+
+#### `simple_secure_storage_linux` - `v0.2.6`
+
+ - **REFACTOR**(linux): communicate with org.freedesktop.secrets directly over D-Bus.
+ - **FIX**: Correct the federated plugin declaration so applications can explicitly select an alternative Linux implementation, including the legacy libsecret fallback.
+
+#### `simple_secure_storage_platform_interface` - `v0.2.4`
+
+ - **REFACTOR**(platform_interface): `InitializationOptions` is now truly immutable.
+ - **FIX**: Reuse the cached storage instance and share initialization between concurrent callers, while allowing retries after initialization or cache-loading failures.
+
+#### `simple_secure_storage_web` - `v0.3.1`
+
+ - **REFACTOR**(web): Added `configureForWeb` method that allows to easily create `WebInitializationOptions` only if needed.
+
+
 ## 2026-07-08
 
 ### Changes

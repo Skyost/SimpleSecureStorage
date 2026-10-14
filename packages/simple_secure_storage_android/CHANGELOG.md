@@ -1,3 +1,7 @@
+## 0.3.2
+
+ - Update a dependency to the latest release.
+
 ## 0.3.1
 
  - **FIX**: Prevent ANR on Android and freezes on iOS with Flutter Thread Merge (3.29+).

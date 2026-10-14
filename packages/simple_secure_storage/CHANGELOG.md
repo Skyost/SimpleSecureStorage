@@ -1,3 +1,9 @@
+## 0.4.3
+
+ - **REFACTOR**(web): Added `configureForWeb` method that allows to easily create `WebInitializationOptions` only if needed.
+ - **REFACTOR**(linux): communicate with org.freedesktop.secrets directly over D-Bus.
+ - **FIX**: Reuse the cached storage instance and share initialization between concurrent callers, while allowing retries after initialization or cache-loading failures.
+
 ## 0.4.2
 
  - **REFACTOR**(darwin): Migrated to SPM.

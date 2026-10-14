@@ -1,3 +1,8 @@
+## 0.2.4
+
+ - **REFACTOR**(platform_interface): `InitializationOptions` is now truly immutable.
+ - **FIX**: Reuse the cached storage instance and share initialization between concurrent callers, while allowing retries after initialization or cache-loading failures.
+
 ## 0.2.3
 
  - **FEAT**(darwin): Added configurable Keychain accessibility support for Darwin.

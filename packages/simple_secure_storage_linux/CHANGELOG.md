@@ -1,3 +1,8 @@
+## 0.2.6
+
+ - **REFACTOR**(linux): communicate with org.freedesktop.secrets directly over D-Bus.
+ - **FIX**: Correct the federated plugin declaration so applications can explicitly select an alternative Linux implementation, including the legacy libsecret fallback.
+
 ## 0.2.5
 
 ## 0.2.4
