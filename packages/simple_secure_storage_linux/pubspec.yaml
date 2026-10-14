@@ -12,8 +12,8 @@ environment:
 
 flutter:
   plugin:
+    implements: simple_secure_storage
     platforms:
-      implements: simple_secure_storage
       linux:
         dartPluginClass: SimpleSecureStorageLinux
         fileName: simple_secure_storage_linux.dart
