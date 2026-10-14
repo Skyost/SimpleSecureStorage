@@ -32,6 +32,7 @@ analyzer:
     - custom_lint
   exclude:
     - '**.g.dart'
+    - build/**
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
