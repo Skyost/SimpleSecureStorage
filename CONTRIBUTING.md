@@ -159,6 +159,14 @@ There are a few things to think about when doing a release:
 - Once you are satisfied with the result of the dry run, run `melos publish --no-dry-run`
 - Create a PR containing the updated changelog and `pubspec.yaml` files.
 
+For the first `simple_secure_storage_linux_libsecret` release, also publish the updated
+`simple_secure_storage_linux` package with the corrected `flutter.plugin.implements`
+declaration, then release `simple_secure_storage` depending on that updated Linux
+version. The app-facing dependency must require the fixed version, so applications
+selecting the fallback do not also register the older default native plugin.
+The new libsecret package remains optional; do not add it to the app-facing
+package's dependencies or `default_package` configuration.
+
 [GitHub issue]: https://github.com/Skyost/SimpleSecureStorage/issues
 [GitHub issues]: https://github.com/Skyost/SimpleSecureStorage/issues
 [PRs]: https://github.com/Skyost/SimpleSecureStorage/pulls

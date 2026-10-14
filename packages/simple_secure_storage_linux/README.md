@@ -8,3 +8,11 @@ This package
 is [endorsed](https://flutter.dev/docs/development/packages-and-plugins/developing-packages#endorsed-federated-plugin),
 which means you can simply use `simple_secure_storage` normally. This package will be automatically included in
 your app when you do.
+
+## Legacy libsecret fallback
+
+For applications that need the previous native backend,
+[`simple_secure_storage_linux_libsecret`](https://github.com/Skyost/SimpleSecureStorage/tree/main/packages/simple_secure_storage_linux_libsecret)
+is available as an optional, **unmaintained compatibility fallback**. Add it as a
+direct application dependency to select it instead of this default implementation.
+See its README for native dependencies and existing-data compatibility.

@@ -85,6 +85,13 @@ These requirements are typically already satisfied by default on most desktop en
 > [!TIP]
 > Starting from `0.3.0`, installing GNOME libsecret is no longer required. The Linux implementation uses the Secret Service D-Bus API directly.
 
+> [!NOTE]
+> If you need the previous libsecret-based backend, explicitly add
+> [`simple_secure_storage_linux_libsecret`](https://github.com/Skyost/SimpleSecureStorage/tree/main/packages/simple_secure_storage_linux_libsecret)
+> to your application's dependencies. This optional, **unmaintained compatibility fallback**
+> preserves the implementation from before PR #15. Its README explains how to select
+> it, install the required native libraries, and keep access to existing data.
+
 ### Code snippet
 
 Here's a simple example to get started.
@@ -119,6 +126,11 @@ In the previous snippet, everything is being read "on demand". You may want to a
 without always having to write `await`. To do so, use the class `CachedSimpleSecureStorage`.
 It behaves exactly like the snippet above, except you call `await CachedSimpleSecureStorage.getInstance()`
 instead of `await SimpleSecureStorage.initialize()`.
+
+Repeated or concurrent calls to `getInstance()` share the same initialization and return
+the same instance once its cache has loaded. Initialization options are only applied when
+creating the instance. If initialization or cache loading fails, a later call can retry.
+Use `refreshCache()` to explicitly reload values changed outside the cached instance.
 
 If you want a more complete example, feel free to check and run
 [this one](https://github.com/Skyost/SimpleSecureStorage/tree/master/packages/simple_secure_storage/example),
